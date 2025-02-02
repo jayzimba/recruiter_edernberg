@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../middleware/check_auth.php';
 require_once __DIR__ . '/../../config/database.php';
-checkAuth(['recruiter']);
+checkAuth(['lead_recruiter']);
 
 ?>
 <!DOCTYPE html>
@@ -90,27 +90,29 @@ checkAuth(['recruiter']);
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar">
                 <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3">Recruitment</h4>
+                    <h4 class="mb-4 px-3">Lead Recruiter</h4>
                     <nav class="nav flex-column">
                         <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
-                        <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
-                            Application</a>
-                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
+                        <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
+                        <a class="nav-link " href="applications.php"><i class="bi bi-list-ul"></i> All
+                            Applications</a>
+                        <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
+                        <a class="nav-link active" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
                                 class="bi bi-box-arrow-right"></i>
                             Logout</a>
                     </nav>
                 </div>
             </div>
-
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Application Details</h4>
                     <div>
-                        <a href="applications.php" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left"></i> Back to Applications
-                        </a>
+                        <button class="btn btn-primary me-2" onclick="showActionModal()">
+                            <i class="bi bi-check-circle"></i> Review Application
+                        </button>
+
                     </div>
                 </div>
 
@@ -143,7 +145,7 @@ checkAuth(['recruiter']);
         });
 
         function loadApplicationDetails(id) {
-            fetch(`../../api/applications/get_application.php?id=${id}`)
+            fetch(`../../api/applications/get_all_application.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.status && data.data) {
@@ -153,33 +155,57 @@ checkAuth(['recruiter']);
                         details.innerHTML = `
                         <!-- Status Section -->
                         <div class="detail-card">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="section-title mb-0">Application Status</h5>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge status-badge ${getStatusBadgeClass(app.status_name)}">
-                                        ${app.status_name}
-                                    </span>
-                                    ${app.status_id == 1 ? `
-                                        <button class="btn btn-primary btn-sm" onclick="showPopUpload()">
-                                            <i class="bi bi-upload"></i> Upload POP
-                                        </button>
-                                    ` : ''}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="section-title mb-0">Application Status</h5>
+                            <div class="d-flex justify-content-end align-items-center gap-3">
+                               
+                                 ${app.pop && app.student_status =='Not Paid' ? `
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-sm btn-success" onclick="approvePOP(${app.id})">
+                                        <i class="bi bi-check-circle"></i> Approve Payment
+                                    </button>
                                 </div>
+                            ` : ''} <span class="badge status-badge ${getStatusBadgeClass(app.status_name)}">
+                                    ${app.status_name}
+                                </span>
                             </div>
-                            ${app.pop ? `
-                                <div class="mt-3">
+                            </div>
+                           
+                        </div>
+
+                        <!-- Recruiter Information -->
+                        <div class="detail-card">
+                            <h5 class="section-title">Recruiter Information</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Recruiter Name</div>
+                                        <div>${app.recruiter_firstname} ${app.recruiter_lastname}</div>
+                                    </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                    <div class="detail-row">
+                                        <div class="detail-label">Recruiter Email</div>
+                                        <div>${app.recruiter_email}</div>
+                                    </div>
+                                    </div>
+                                    ${app.pop ? `
+                                <div class="mt-3 col-md-4">
                                     <small class="text-muted">Proof of Payment:</small>
                                     <a href="../../uploads/proof_of_payment/${app.pop}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
                                         <i class="bi bi-eye"></i> View POP
                                     </a>
                                 </div>
                             ` : ''}
+                                    
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Personal Information -->
                         <div class="detail-card">
                             <h5 class="section-title">Personal Information</h5>
-                            <div class="row">
+                           <div class="row">
                                 <div class="col-md-6">
                                     <div class="detail-row">
                                         <div class="detail-label">Full Name</div>
@@ -202,6 +228,14 @@ checkAuth(['recruiter']);
                                     <div class="detail-row">
                                         <div class="detail-label">ID Number</div>
                                         <div>${app.G_ID}</div>
+                                    </div>
+                                    <div class="detail-row">
+                                        <div class="detail-label">Payment Status</div>
+                                        <div>
+                                            <span class="badge bg-${app.student_status === 'Not Paid' ? 'info' : 'success'}">
+                                                ${app.student_status}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +299,7 @@ checkAuth(['recruiter']);
                 case 'Pending':
                     return 'bg-warning';
                 case 'Under Review':
-                    return 'bg-info';
+                    return 'bg-warning';
                 case 'Rejected':
                     return 'bg-danger';
                 default:
@@ -311,30 +345,35 @@ checkAuth(['recruiter']);
                 });
         }
 
-        function showPopUpload() {
-            const modal = new bootstrap.Modal(document.getElementById('proofOfPaymentModal'));
+        function showActionModal() {
+            const modal = new bootstrap.Modal(document.getElementById('applicationActionModal'));
             modal.show();
         }
 
-        function uploadPOP() {
-            const form = document.getElementById('popUploadForm');
-            const formData = new FormData(form);
-            const uploadBtn = document.getElementById('uploadPopBtn');
-            const feedback = document.getElementById('uploadFeedback');
+        function updateApplicationStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const applicationId = urlParams.get('id');
+            const status = document.getElementById('applicationStatus').value;
+            const feedback = document.getElementById('actionFeedback');
 
-            // Add application ID to form data
-            formData.append('application_id', applicationId);
+            if (!status) {
+                feedback.innerHTML = `
+                <div class="alert alert-danger">
+                    Please select a decision
+                </div>
+            `;
+                return;
+            }
 
-            // Show loading state
-            uploadBtn.disabled = true;
-            uploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Uploading...`;
-            feedback.innerHTML = '';
-
-            fetch('../../api/applications/upload_pop.php', {
+            fetch('../../api/applications/update_status.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        application_id: applicationId,
+                        status: status,
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -344,9 +383,9 @@ checkAuth(['recruiter']);
                         ${data.message}
                     </div>
                 `;
-                        // Reload application details after successful upload
                         setTimeout(() => {
-                            bootstrap.Modal.getInstance(document.getElementById('proofOfPaymentModal')).hide();
+                            bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
+                                .hide();
                             loadApplicationDetails(applicationId);
                         }, 1500);
                     } else {
@@ -355,46 +394,73 @@ checkAuth(['recruiter']);
                         ${data.message}
                     </div>
                 `;
-                        uploadBtn.disabled = false;
-                        uploadBtn.innerHTML = 'Upload';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     feedback.innerHTML = `
                 <div class="alert alert-danger">
-                    An error occurred while uploading. Please try again.
+                    An error occurred. Please try again.
                 </div>
             `;
-                    uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = 'Upload';
+                });
+        }
+
+        // Add this function to handle POP approval
+        function approvePOP(applicationId) {
+            fetch('../../api/applications/approve_payment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        application_id: applicationId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        // Reload application details to show updated status
+                        loadApplicationDetails(applicationId);
+                        // Show success message
+                        alert('Payment approved successfully');
+                    } else {
+                        alert(data.message || 'Failed to approve payment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving payment');
                 });
         }
     </script>
 
-    <!-- Add this modal HTML just before the closing body tag -->
-    <div class="modal fade" id="proofOfPaymentModal" tabindex="-1">
+    <!-- Application Action Modal -->
+    <div class="modal fade" id="applicationActionModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Upload Proof of Payment</h5>
+                    <h5 class="modal-title">Review Application</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="popUploadForm">
+                    <form id="applicationActionForm">
                         <div class="mb-3">
-                            <label class="form-label required">Select File</label>
-                            <input type="file" class="form-control" name="pop_file" accept=".pdf,.jpg,.jpeg,.png"
-                                required>
-                            <small class="text-muted">Accepted formats: PDF, JPG, PNG</small>
+                            <label class="form-label required">Decision</label>
+                            <select class="form-select" id="applicationStatus" required>
+                                <option value="">Select decision...</option>
+                                <option value="3">Accept Application</option>
+                                <option value="4">Reject Application</option>
+                            </select>
                         </div>
+
                     </form>
-                    <div id="uploadFeedback"></div>
+                    <div id="actionFeedback"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="uploadPopBtn" onclick="uploadPOP()">
-                        Upload
+                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">
+                        Submit Decision
                     </button>
                 </div>
             </div>

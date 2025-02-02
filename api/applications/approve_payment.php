@@ -15,8 +15,8 @@ if (!$auth->isAuthenticated()) {
 try {
     $data = json_decode(file_get_contents('php://input'), true);
 
-    if (!isset($data['application_id']) || !isset($data['status'])) {
-        throw new Exception('Missing required fields');
+    if (!isset($data['application_id'])) {
+        throw new Exception('Missing application ID');
     }
 
     $database = new Database();
@@ -25,31 +25,29 @@ try {
     // Start transaction
     $conn->beginTransaction();
 
-    // Update application status
+    // Update student status to Paid
     $updateQuery = "UPDATE students 
-                   SET application_status = :status,
-                       updated_at = NOW()
+                   SET student_status = 1
                    WHERE id = :id";
 
     $stmt = $conn->prepare($updateQuery);
-    $stmt->bindParam(':status', $data['status']);
     $stmt->bindParam(':id', $data['application_id']);
 
     if (!$stmt->execute()) {
-        throw new Exception('Failed to update application status');
+        throw new Exception('Failed to update payment status');
     }
 
     $conn->commit();
 
     echo json_encode([
         'status' => true,
-        'message' => 'Application status updated successfully'
+        'message' => 'Payment approved successfully'
     ]);
 } catch (Exception $e) {
     if (isset($conn)) {
         $conn->rollBack();
     }
-    error_log("Error updating application status: " . $e->getMessage());
+    error_log("Error approving payment: " . $e->getMessage());
     echo json_encode([
         'status' => false,
         'message' => $e->getMessage()
