@@ -16,45 +16,56 @@ $database = new Database();
 $conn = $database->getConnection();
 
 try {
-    $id = isset($_GET['id']) ? trim($_GET['id']) : '';
+    $application_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
     $recruiter_id = $_SESSION['user_id'];
 
-    $query = "SELECT s.*, p.program_name, status.name as status_name
+    if (!$application_id) {
+        throw new Exception('Invalid application ID');
+    }
+
+    // Get application details
+    $query = "SELECT s.*, p.program_name, sm.mode_name, 
+              i.intake_description, at.admission_description,
+              status.name as status_name,
+              CAST(status.id AS UNSIGNED) as status_id
               FROM students s
               LEFT JOIN programs p ON s.program_id = p.id
-              LEFT JOIN application_status AS status ON s.application_status = status.id
-              WHERE s.recruiter_id = :recruiter_id";
-
-    if (!empty($id)) {
-        $query .= " AND s.id = :id";
-    }
+              LEFT JOIN study_modes sm ON s.study_mode_id = sm.id
+              LEFT JOIN intake i ON s.intake_id = i.id
+              LEFT JOIN admission_type at ON s.admission_type = at.id
+              LEFT JOIN application_status status ON s.application_status = status.id
+              WHERE s.id = :id AND s.recruiter_id = :recruiter_id";
 
     $stmt = $conn->prepare($query);
-    $stmt->bindParam(':recruiter_id', $recruiter_id, PDO::PARAM_INT);
-
-    if (!empty($id)) {
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-    }
-
+    $stmt->bindParam(':id', $application_id);
+    $stmt->bindParam(':recruiter_id', $recruiter_id);
     $stmt->execute();
 
-    $application = $stmt->fetch(PDO::FETCH_ASSOC); // Fetch a single application
+    $application = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($application) {
-        echo json_encode([
-            'status' => true,
-            'data' => $application
-        ]);
-    } else {
-        echo json_encode([
-            'status' => false,
-            'message' => 'Application not found'
-        ]);
+    if (!$application) {
+        throw new Exception('Application not found');
     }
+
+    // Get attachments
+    $attachQuery = "SELECT a.*, dt.description 
+                   FROM attachments a
+                   LEFT JOIN attachment_type dt ON a.type = dt.id
+                   WHERE a.student = :student_id";
+    $attachStmt = $conn->prepare($attachQuery);
+    $attachStmt->bindParam(':student_id', $application_id);
+    $attachStmt->execute();
+
+    $application['attachments'] = $attachStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        'status' => true,
+        'data' => $application
+    ]);
 } catch (Exception $e) {
-    error_log("Error fetching application: " . $e->getMessage());
+    error_log("Error getting application details: " . $e->getMessage());
     echo json_encode([
         'status' => false,
-        'message' => 'Failed to fetch application'
+        'message' => $e->getMessage()
     ]);
 }

@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require_once '../../middleware/Auth.php';
 require_once '../../config/database.php';
+require_once '../../utils/Mailer.php';
 
 $auth = new Auth();
 if (!$auth->isAuthenticated()) {
@@ -146,14 +147,25 @@ try {
     // Commit transaction
     $conn->commit();
 
+    // // Send confirmation email
+    // $mailer = new Mailer();
+    // $fullName = $firstname . ' ' . $lastname;
+
+    // $emailSent = $mailer->sendApplicationConfirmation(
+    //     $email,
+    //     $fullName,
+    //     $program_name
+    // );
+
     echo json_encode([
         'status' => true,
-        'message' => 'Student registered successfully',
-        'student_id' => $student_id
+        'message' => 'Application submitted successfully',
+        'student_id' => $student_id,
+        'email_sent' => $emailSent
     ]);
 } catch (Exception $e) {
     $conn->rollBack();
-    error_log("Error: " . $e->getMessage());
+    error_log("Application creation error: " . $e->getMessage());
     echo json_encode([
         'status' => false,
         'message' => $e->getMessage()

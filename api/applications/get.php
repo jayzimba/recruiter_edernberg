@@ -22,7 +22,7 @@ try {
     $query = "SELECT s.*, p.program_name, status.name as status_name
               FROM students s
               LEFT JOIN programs p ON s.program_id = p.id
-              LEFT JOIN application_status as status ON s.application_status = status.id
+              LEFT JOIN application_status status ON s.application_status = status.id
               WHERE s.recruiter_id = :recruiter_id";
 
     if ($search) {

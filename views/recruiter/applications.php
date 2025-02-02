@@ -13,81 +13,81 @@ checkAuth(['recruiter', 'lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-    .sidebar {
-        min-height: 100vh;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        padding-top: 1rem;
-    }
-
-    .nav-link {
-        padding: 0.8rem 1rem;
-        color: #6c757d;
-        border-radius: 5px;
-        margin: 0.2rem 0;
-    }
-
-    .nav-link:hover,
-    .nav-link.active {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .nav-link i {
-        margin-right: 10px;
-    }
-
-    .main-content {
-        background-color: #f8f9fa;
-        min-height: 100vh;
-        padding: 2rem;
-    }
-
-    .search-box {
-        background: white;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        margin-bottom: 2rem;
-    }
-
-    .applications-table {
-        background: white;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-    }
-
-    .badge {
-        font-weight: 500;
-        padding: 0.5em 1em;
-    }
-
-    .loading-spinner {
-        width: 1rem;
-        height: 1rem;
-        border: 2px solid #f3f3f3;
-        border-top: 2px solid var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        display: inline-block;
-        margin-right: 0.5rem;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
+        .sidebar {
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            padding-top: 1rem;
         }
 
-        100% {
-            transform: rotate(360deg);
+        .nav-link {
+            padding: 0.8rem 1rem;
+            color: #6c757d;
+            border-radius: 5px;
+            margin: 0.2rem 0;
         }
-    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .applications-table {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 1em;
+        }
+
+        .loading-spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -156,36 +156,36 @@ checkAuth(['recruiter', 'lead_recruiter']);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadApplications();
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApplications();
 
-        // Add search functionality
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                loadApplications(e.target.value);
-            }, 500);
+            // Add search functionality
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadApplications(e.target.value);
+                }, 500);
+            });
         });
-    });
 
-    function loadApplications(search = '') {
-        const tableBody = document.getElementById('applicationsTableBody');
+        function loadApplications(search = '') {
+            const tableBody = document.getElementById('applicationsTableBody');
 
-        fetch(`../../api/applications/get.php${search ? `?search=${encodeURIComponent(search)}` : ''}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status && data.data) {
-                    if (data.data.length === 0) {
-                        tableBody.innerHTML = `
+            fetch(`../../api/applications/get.php${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status && data.data) {
+                        if (data.data.length === 0) {
+                            tableBody.innerHTML = `
                                 <tr>
                                     <td colspan="7" class="text-center">No applications found</td>
                                 </tr>
                             `;
-                        return;
-                    }
+                            return;
+                        }
 
-                    tableBody.innerHTML = data.data.map(app => `
+                        tableBody.innerHTML = data.data.map(app => `
                             <tr>
                                 <td>${app.firstname} ${app.lastname}</td>
                                 <td>${app.email}</td>
@@ -206,51 +206,51 @@ checkAuth(['recruiter', 'lead_recruiter']);
                              
                                  <td>
                                     <button class="btn btn-sm btn-outline-primary" 
-                                        onclick="viewApplication(${app.id})">
+                                            onclick="viewApplication(${app.id})">
                                         View
                                     </button>
                                 </td>
                            </tr>
                           `).join('');
-                } else {
-                    tableBody.innerHTML = `
+                    } else {
+                        tableBody.innerHTML = `
                             <tr>
                                 <td colspan="7" class="text-center text-danger">
                                     Failed to load applications
                                 </td>
                             </tr>
                         `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                tableBody.innerHTML = `
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tableBody.innerHTML = `
                         <tr>
                             <td colspan="7" class="text-center text-danger">
                                 An error occurred while loading applications
                             </td>
                         </tr>
                     `;
-            });
-    }
+                });
+        }
 
-    function viewApplication(id) {
-        window.location.href = `view-application.php?id=${id}`;
-    }
+        function viewApplication(id) {
+            window.location.href = `view-application.php?id=${id}`;
+        }
 
-    function logout() {
-        fetch('../../api/logout.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    localStorage.removeItem('jwt_token');
-                    window.location.href = '../login.php';
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-            });
-    }
+        function logout() {
+            fetch('../../api/logout.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        localStorage.removeItem('jwt_token');
+                        window.location.href = '../login.php';
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout failed:', error);
+                });
+        }
     </script>
 </body>
 

@@ -731,6 +731,7 @@ echo " -->";
                             showAlert('success', 'Application submitted successfully!');
                             setTimeout(() => {
                                 window.location.reload();
+                                console.log('Application submitted successfully!', data);
                             }, 1500);
                         } else {
                             showAlert('danger', data.message || 'Failed to submit application');
