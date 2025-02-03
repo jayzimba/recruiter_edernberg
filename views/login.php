@@ -25,7 +25,7 @@ if (isset($_SESSION['user_id'])) {
 
                         <div class="text-center"> <img src="../assets/icons/edernberg.jpeg"
                                 alt="University Recruitment Logo" class="img-fluid mb-4" style="max-width: 200px;">
-                            <h3>University Recruitment System</h3>
+                            <h3>Recruitment System</h3>
                         </div>
 
 

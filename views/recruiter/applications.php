@@ -18,6 +18,25 @@ checkAuth(['recruiter', 'lead_recruiter']);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             background-color: #fff;
             padding-top: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
         .nav-link {
@@ -37,55 +56,88 @@ checkAuth(['recruiter', 'lead_recruiter']);
             margin-right: 10px;
         }
 
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            padding: 2rem;
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
         }
 
-        .search-box {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .applications-table {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .badge {
-            font-weight: 500;
-            padding: 0.5em 1em;
-        }
-
-        .loading-spinner {
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
+        .recent-applications {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Close button for sidebar on mobile */
+        .sidebar-close {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 1001;
+            /* Ensure it's above the sidebar */
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar-close {
+                display: block;
+                /* Show on mobile */
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar-toggle {
+                display: block;
             }
 
-            100% {
-                transform: rotate(360deg);
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
             }
         }
     </style>
@@ -95,23 +147,45 @@ checkAuth(['recruiter', 'lead_recruiter']);
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
+            <div class="col-md-3 col-lg-2 sidebar" id="sidebar">
                 <div class="d-flex flex-column">
+                    <!-- Close Button for Mobile -->
+                    <button class="sidebar-close d-md-none" id="sidebarClose">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                     <h4 class="mb-4 px-3">Recruitment</h4>
                     <nav class="nav flex-column">
                         <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
                         <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
                             Application</a>
-                        <a class="nav-link active" href="#"><i class="bi bi-list-ul"></i> Applications</a>
+                        <a class="nav-link active" href="applications.php"><i class="bi bi-list-ul"></i>
+                            Applications</a>
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
-                                class="bi bi-box-arrow-right"></i>
-                            Logout</a>
+                                class="bi bi-box-arrow-right"></i> Logout</a>
                     </nav>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+                <!-- Header -->
+                <div class="header mb-4 d-flex justify-content-between align-items-center">
+                    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h4 class="m-0 d-md-block d-none">Dashboard Overview</h4>
+
+
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <?php echo strtoupper(substr($_SESSION['user_email'], 0, 1)); ?>
+                        </div>
+                        <div>
+                            <!-- <small class="text-muted">Welcome,</small> -->
+                            <div class="fw-bold"><?php echo $_SESSION['user_email']; ?></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="search-box">
                     <div class="row">
                         <div class="col-md-6">
@@ -158,6 +232,25 @@ checkAuth(['recruiter', 'lead_recruiter']);
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             loadApplications();
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            // Toggle sidebar on button click
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+
+            // Close sidebar when clicking the close button
+            sidebarClose.addEventListener('click', () => {
+                sidebar.classList.remove('show');
+            });
+
+            // Close sidebar when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            });
 
             // Add search functionality
             let searchTimeout;

@@ -194,7 +194,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-2">Total Applications</h6>
-                                        <h3 class="mb-0" id="totalApplications"></h3>
+                                        <h3 class="mb-0" id="totalApplications">0</h3>
                                     </div>
                                     <div class="text-primary">
                                         <i class="bi bi-file-text fs-1"></i>
@@ -209,7 +209,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-2">Pending Review</h6>
-                                        <h3 class="mb-0" id="pendingReview"></h3>
+                                        <h3 class="mb-0" id="pendingReview">0</h3>
                                     </div>
                                     <div class="text-warning">
                                         <i class="bi bi-clock-history fs-1"></i>
@@ -224,7 +224,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-2">Approved</h6>
-                                        <h3 class="mb-0" id="approved"></h3>
+                                        <h3 class="mb-0" id="approved">0</h3>
                                     </div>
                                     <div class="text-success">
                                         <i class="bi bi-check-circle fs-1"></i>
@@ -239,7 +239,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-2">Rejected</h6>
-                                        <h3 class="mb-0" id="rejected"></h3>
+                                        <h3 class="mb-0" id="rejected">0</h3>
                                     </div>
                                     <div class="text-danger">
                                         <i class="bi bi-x-circle fs-1"></i>

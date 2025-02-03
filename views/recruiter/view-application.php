@@ -15,72 +15,150 @@ checkAuth(['recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
+    .sidebar {
+        min-height: 100vh;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        padding-top: 1rem;
+    }
+
+    .nav-link {
+        padding: 0.8rem 1rem;
+        color: #6c757d;
+        border-radius: 5px;
+        margin: 0.2rem 0;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .nav-link i {
+        margin-right: 10px;
+    }
+
+    .header {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    /* Sidebar toggle button */
+    .sidebar-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Close button for sidebar on mobile */
+    .sidebar-close {
+        display: none;
+        /* Hidden by default */
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6c757d;
+        cursor: pointer;
+        z-index: 1001;
+        /* Ensure it's above the sidebar */
+    }
+
+    @media (max-width: 767.98px) {
+        .sidebar-close {
+            display: block;
+            /* Show on mobile */
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .sidebar-toggle {
+            display: block;
+        }
+
         .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transform: translateX(-100%);
         }
 
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .nav-link i {
-            margin-right: 10px;
+        .sidebar.show {
+            transform: translateX(0);
         }
 
         .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            padding: 2rem;
+            margin-left: 0;
         }
+    }
 
-        .detail-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
+    .main-content {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem;
+    }
 
-        .section-title {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary-color);
-        }
+    .detail-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
 
-        .detail-row {
-            margin-bottom: 1rem;
-        }
+    .section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
 
-        .detail-label {
-            font-weight: 600;
-            color: #6c757d;
-        }
+    .detail-row {
+        margin-bottom: 1rem;
+    }
 
-        .attachment-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
+    .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
 
-        .status-badge {
-            font-size: 0.9rem;
-            padding: 0.5em 1em;
-        }
+    .attachment-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5em 1em;
+    }
     </style>
 </head>
 
@@ -88,23 +166,45 @@ checkAuth(['recruiter']);
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
+            <div class="col-md-3 col-lg-2 sidebar" id="sidebar">
                 <div class="d-flex flex-column">
+                    <!-- Close Button for Mobile -->
+                    <button class="sidebar-close d-md-none" id="sidebarClose">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                     <h4 class="mb-4 px-3">Recruitment</h4>
                     <nav class="nav flex-column">
                         <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
                         <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
                             Application</a>
-                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
+                        <a class="nav-link active" href="applications.php"><i class="bi bi-list-ul"></i>
+                            Applications</a>
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
-                                class="bi bi-box-arrow-right"></i>
-                            Logout</a>
+                                class="bi bi-box-arrow-right"></i> Logout</a>
                     </nav>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+                <!-- Header -->
+                <div class="header mb-4 d-flex justify-content-between align-items-center">
+                    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h4 class="m-0 d-md-block d-none">Onboarding</h4>
+
+
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <?php echo strtoupper(substr($_SESSION['user_email'], 0, 1)); ?>
+                        </div>
+                        <div>
+                            <!-- <small class="text-muted">Welcome,</small> -->
+                            <div class="fw-bold"><?php echo $_SESSION['user_email']; ?></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Application Details</h4>
                     <div>
@@ -129,28 +229,46 @@ checkAuth(['recruiter']);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get application ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const applicationId = urlParams.get('id');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get application ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
-            if (!applicationId) {
-                window.location.href = 'applications.php';
-                return;
-            }
-
-            loadApplicationDetails(applicationId);
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
         });
 
-        function loadApplicationDetails(id) {
-            fetch(`../../api/applications/get_application.php?id=${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status && data.data) {
-                        const app = data.data;
-                        const details = document.getElementById('applicationDetails');
+        // Close sidebar when clicking the close button
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+        });
 
-                        details.innerHTML = `
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+        if (!applicationId) {
+            window.location.href = 'applications.php';
+            return;
+        }
+
+        loadApplicationDetails(applicationId);
+    });
+
+    function loadApplicationDetails(id) {
+        fetch(`../../api/applications/get_application.php?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.data) {
+                    const app = data.data;
+                    const details = document.getElementById('applicationDetails');
+
+                    details.innerHTML = `
                         <!-- Status Section -->
                         <div class="detail-card">
                             <div class="d-flex justify-content-between align-items-center">
@@ -242,43 +360,43 @@ checkAuth(['recruiter']);
                             </div>
                         </div>
                     `;
-                    } else {
-                        document.getElementById('applicationDetails').innerHTML = `
+                } else {
+                    document.getElementById('applicationDetails').innerHTML = `
                         <div class="alert alert-danger">
                             Failed to load application details. ${data.message || ''}
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('applicationDetails').innerHTML = `
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('applicationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         An error occurred while loading the application details.
                     </div>
                 `;
-                });
+            });
+    }
+
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'Pending':
+                return 'bg-warning';
+            case 'Under Review':
+                return 'bg-info';
+            case 'Rejected':
+                return 'bg-danger';
+            default:
+                return 'bg-success';
+        }
+    }
+
+    function renderAttachments(attachments) {
+        if (!attachments || attachments.length === 0) {
+            return '<div class="col-12">No documents attached</div>';
         }
 
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'Pending':
-                    return 'bg-warning';
-                case 'Under Review':
-                    return 'bg-info';
-                case 'Rejected':
-                    return 'bg-danger';
-                default:
-                    return 'bg-success';
-            }
-        }
-
-        function renderAttachments(attachments) {
-            if (!attachments || attachments.length === 0) {
-                return '<div class="col-12">No documents attached</div>';
-            }
-
-            return attachments.map(attachment => `
+        return attachments.map(attachment => `
             <div class="col-md-6">
                 <div class="attachment-card">
                     <div class="d-flex justify-content-between align-items-center">
@@ -295,81 +413,123 @@ checkAuth(['recruiter']);
                 </div>
             </div>
         `).join('');
-        }
+    }
 
-        function logout() {
-            fetch('../../api/logout.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        localStorage.removeItem('jwt_token');
-                        window.location.href = '../login.php';
-                    }
-                })
-                .catch(error => {
-                    console.error('Logout failed:', error);
-                });
-        }
+    function logout() {
+        fetch('../../api/logout.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = '../login.php';
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+    }
 
-        function showPopUpload() {
-            const modal = new bootstrap.Modal(document.getElementById('proofOfPaymentModal'));
-            modal.show();
-        }
+    function showPopUpload() {
+        const modal = new bootstrap.Modal(document.getElementById('proofOfPaymentModal'));
+        modal.show();
+    }
 
-        function uploadPOP() {
-            const form = document.getElementById('popUploadForm');
-            const formData = new FormData(form);
-            const uploadBtn = document.getElementById('uploadPopBtn');
-            const feedback = document.getElementById('uploadFeedback');
-            const urlParams = new URLSearchParams(window.location.search);
-            const applicationId = urlParams.get('id');
+    function uploadPOP() {
+        const form = document.getElementById('popUploadForm');
+        const formData = new FormData(form);
+        const uploadBtn = document.getElementById('uploadPopBtn');
+        const feedback = document.getElementById('uploadFeedback');
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
 
-            // Add application ID to form data
-            formData.append('application_id', applicationId);
+        // Add application ID to form data
+        formData.append('application_id', applicationId);
 
-            // Show loading state
-            uploadBtn.disabled = true;
-            uploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Uploading...`;
-            feedback.innerHTML = '';
+        // Show loading state
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Uploading...`;
+        feedback.innerHTML = '';
 
-            fetch('../../api/applications/upload_pop.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        feedback.innerHTML = `
+        fetch('../../api/applications/upload_pop.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    feedback.innerHTML = `
                     <div class="alert alert-success">
                         ${data.message}
                     </div>
                 `;
-                        // Reload application details after successful upload
-                        setTimeout(() => {
-                            bootstrap.Modal.getInstance(document.getElementById('proofOfPaymentModal')).hide();
-                            loadApplicationDetails(applicationId);
-                        }, 1500);
-                    } else {
-                        feedback.innerHTML = `
+                    // Reload application details after successful upload
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('proofOfPaymentModal')).hide();
+                        loadApplicationDetails(applicationId);
+                    }, 1500);
+                } else {
+                    feedback.innerHTML = `
                     <div class="alert alert-danger">
                         ${data.message}
                     </div>
                 `;
-                        uploadBtn.disabled = false;
-                        uploadBtn.innerHTML = 'Upload';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    feedback.innerHTML = `
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = 'Upload';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                feedback.innerHTML = `
                 <div class="alert alert-danger">
                     An error occurred while uploading. Please try again.
                 </div>
             `;
-                    uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = 'Upload';
-                });
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = 'Upload';
+            });
+    }
+
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting Decision...';
+            button.disabled = true;
+        } else {
+            button.innerHTML = 'Submit Decision';
+            button.disabled = false;
         }
+    }
+
+    function updateApplicationStatus(applicationId, status) {
+        const button = event.target;
+        setButtonLoading(button, true);
+
+        fetch('../../api/applications/update_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    showAlert('success', data.message);
+                    // Reload the current page
+                    window.location.reload();
+                } else {
+                    showAlert('danger', data.message);
+                    setButtonLoading(button, false);
+                }
+            })
+            .catch(error => {
+                showAlert('danger', 'An error occurred. Please try again.');
+                setButtonLoading(button, false);
+            });
+    }
     </script>
 
     <!-- Add this modal HTML just before the closing body tag -->

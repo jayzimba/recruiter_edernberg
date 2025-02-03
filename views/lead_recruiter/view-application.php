@@ -15,72 +15,72 @@ checkAuth(['lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-        .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
-        }
+    .sidebar {
+        min-height: 100vh;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        padding-top: 1rem;
+    }
 
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
+    .nav-link {
+        padding: 0.8rem 1rem;
+        color: #6c757d;
+        border-radius: 5px;
+        margin: 0.2rem 0;
+    }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+    .nav-link:hover,
+    .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-        .nav-link i {
-            margin-right: 10px;
-        }
+    .nav-link i {
+        margin-right: 10px;
+    }
 
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            padding: 2rem;
-        }
+    .main-content {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem;
+    }
 
-        .detail-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
+    .detail-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
 
-        .section-title {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary-color);
-        }
+    .section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
 
-        .detail-row {
-            margin-bottom: 1rem;
-        }
+    .detail-row {
+        margin-bottom: 1rem;
+    }
 
-        .detail-label {
-            font-weight: 600;
-            color: #6c757d;
-        }
+    .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
 
-        .attachment-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
+    .attachment-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
 
-        .status-badge {
-            font-size: 0.9rem;
-            padding: 0.5em 1em;
-        }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5em 1em;
+    }
     </style>
 </head>
 
@@ -109,10 +109,9 @@ checkAuth(['lead_recruiter']);
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Application Details</h4>
                     <div>
-                        <button class="btn btn-primary me-2" onclick="showActionModal()">
-                            <i class="bi bi-check-circle"></i> Review Application
-                        </button>
-
+                        <div id="actionButtons">
+                            <!-- Buttons will be loaded dynamically -->
+                        </div>
                     </div>
                 </div>
 
@@ -131,28 +130,36 @@ checkAuth(['lead_recruiter']);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get application ID from URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const applicationId = urlParams.get('id');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get application ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
 
-            if (!applicationId) {
-                window.location.href = 'applications.php';
-                return;
-            }
+        if (!applicationId) {
+            window.location.href = 'applications.php';
+            return;
+        }
 
-            loadApplicationDetails(applicationId);
-        });
+        loadApplicationDetails(applicationId);
+    });
 
-        function loadApplicationDetails(id) {
-            fetch(`../../api/applications/get_all_application.php?id=${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status && data.data) {
-                        const app = data.data;
-                        const details = document.getElementById('applicationDetails');
+    function loadApplicationDetails(id) {
+        fetch(`../../api/applications/get_all_application.php?id=${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.data) {
+                    const app = data.data;
+                    const details = document.getElementById('applicationDetails');
+                    const actionButtons = document.getElementById('actionButtons');
 
-                        details.innerHTML = `
+                    // Only show Review Application button if status is not "Accepted" (status_id != 3)
+                    actionButtons.innerHTML = app.status_id != 3 ? `
+                            <button class="btn btn-primary me-2" onclick="showActionModal()">
+                                <i class="bi bi-check-circle"></i> Review Application
+                            </button>
+                        ` : '';
+
+                    details.innerHTML = `
                         <!-- Status Section -->
                         <div class="detail-card">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -276,43 +283,43 @@ checkAuth(['lead_recruiter']);
                             </div>
                         </div>
                     `;
-                    } else {
-                        document.getElementById('applicationDetails').innerHTML = `
+                } else {
+                    document.getElementById('applicationDetails').innerHTML = `
                         <div class="alert alert-danger">
                             Failed to load application details. ${data.message || ''}
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('applicationDetails').innerHTML = `
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('applicationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         An error occurred while loading the application details.
                     </div>
                 `;
-                });
+            });
+    }
+
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'Pending':
+                return 'bg-warning';
+            case 'Under Review':
+                return 'bg-warning';
+            case 'Rejected':
+                return 'bg-danger';
+            default:
+                return 'bg-success';
+        }
+    }
+
+    function renderAttachments(attachments) {
+        if (!attachments || attachments.length === 0) {
+            return '<div class="col-12">No documents attached</div>';
         }
 
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'Pending':
-                    return 'bg-warning';
-                case 'Under Review':
-                    return 'bg-warning';
-                case 'Rejected':
-                    return 'bg-danger';
-                default:
-                    return 'bg-success';
-            }
-        }
-
-        function renderAttachments(attachments) {
-            if (!attachments || attachments.length === 0) {
-                return '<div class="col-12">No documents attached</div>';
-            }
-
-            return attachments.map(attachment => `
+        return attachments.map(attachment => `
             <div class="col-md-6">
                 <div class="attachment-card">
                     <div class="d-flex justify-content-between align-items-center">
@@ -329,110 +336,126 @@ checkAuth(['lead_recruiter']);
                 </div>
             </div>
         `).join('');
+    }
+
+    function logout() {
+        fetch('../../api/logout.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = '../login.php';
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+    }
+
+    function showActionModal() {
+        const modal = new bootstrap.Modal(document.getElementById('applicationActionModal'));
+        modal.show();
+    }
+
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.innerHTML =
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting Decision...';
+            button.disabled = true;
+        } else {
+            button.innerHTML = 'Submit Decision';
+            button.disabled = false;
         }
+    }
 
-        function logout() {
-            fetch('../../api/logout.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        localStorage.removeItem('jwt_token');
-                        window.location.href = '../login.php';
-                    }
-                })
-                .catch(error => {
-                    console.error('Logout failed:', error);
-                });
-        }
+    function updateApplicationStatus() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+        const status = document.getElementById('applicationStatus').value;
+        const feedback = document.getElementById('actionFeedback');
 
-        function showActionModal() {
-            const modal = new bootstrap.Modal(document.getElementById('applicationActionModal'));
-            modal.show();
-        }
-
-        function updateApplicationStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const applicationId = urlParams.get('id');
-            const status = document.getElementById('applicationStatus').value;
-            const feedback = document.getElementById('actionFeedback');
-
-            if (!status) {
-                feedback.innerHTML = `
+        if (!status) {
+            feedback.innerHTML = `
                 <div class="alert alert-danger">
                     Please select a decision
                 </div>
             `;
-                return;
-            }
+            return;
+        }
 
-            fetch('../../api/applications/update_status.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        application_id: applicationId,
-                        status: status,
-                    })
+        const button = event.target;
+        setButtonLoading(button, true);
+
+        fetch('../../api/applications/update_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    status: status,
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        feedback.innerHTML = `
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    feedback.innerHTML = `
                     <div class="alert alert-success">
                         ${data.message}
                     </div>
                 `;
-                        setTimeout(() => {
-                            bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
-                                .hide();
-                            loadApplicationDetails(applicationId);
-                        }, 1500);
-                    } else {
-                        feedback.innerHTML = `
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
+                            .hide();
+                        loadApplicationDetails(applicationId);
+                    }, 1500);
+                } else {
+                    feedback.innerHTML = `
                     <div class="alert alert-danger">
                         ${data.message}
                     </div>
                 `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    feedback.innerHTML = `
+                }
+                setButtonLoading(button, false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                feedback.innerHTML = `
                 <div class="alert alert-danger">
                     An error occurred. Please try again.
                 </div>
             `;
-                });
-        }
+                setButtonLoading(button, false);
+            });
+    }
 
-        // Add this function to handle POP approval
-        function approvePOP(applicationId) {
-            fetch('../../api/applications/approve_payment.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        application_id: applicationId
-                    })
+    // Add this function to handle POP approval
+    function approvePOP(applicationId) {
+        fetch('../../api/applications/approve_payment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    application_id: applicationId
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        // Reload application details to show updated status
-                        loadApplicationDetails(applicationId);
-                        // Show success message
-                        alert('Payment approved successfully');
-                    } else {
-                        alert(data.message || 'Failed to approve payment');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while approving payment');
-                });
-        }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    // Reload application details to show updated status
+                    loadApplicationDetails(applicationId);
+                    // Show success message
+                    alert('Payment approved successfully');
+                } else {
+                    alert(data.message || 'Failed to approve payment');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while approving payment');
+            });
+    }
     </script>
 
     <!-- Application Action Modal -->
@@ -469,3 +492,94 @@ checkAuth(['lead_recruiter']);
 </body>
 
 </html>
+data.message
+} < /div>
+    `;
+    setTimeout(() => {
+    bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
+    .hide();
+    loadApplicationDetails(applicationId);
+    }, 1500);
+    } else {
+    feedback.innerHTML = ` < div class="alert alert-danger">
+        $ {
+        data.message
+        } < /div>
+            `;
+            }
+            setButtonLoading(button, false);
+            })
+            .catch(error => {
+            console.error('Error:', error);
+            feedback.innerHTML = ` < div class="alert alert-danger">
+                An error occurred.Please
+                try again. < /div>
+                    `;
+                    setButtonLoading(button, false);
+                    });
+                    }
+
+                    // Add this function to handle POP approval
+                    function approvePOP(applicationId) {
+                    fetch('../../api/applications/approve_payment.php', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                    application_id: applicationId
+                    })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                    if (data.status) {
+                    // Reload application details to show updated status
+                    loadApplicationDetails(applicationId);
+                    // Show success message
+                    alert('Payment approved successfully');
+                    } else {
+                    alert(data.message || 'Failed to approve payment');
+                    }
+                    })
+                    .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving payment');
+                    });
+                    }
+                    </script>
+
+                    <!-- Application Action Modal -->
+                    <div class="modal fade" id="applicationActionModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Review Application</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="applicationActionForm">
+                                        <div class="mb-3">
+                                            <label class="form-label required">Decision</label>
+                                            <select class="form-select" id="applicationStatus" required>
+                                                <option value="">Select decision...</option>
+                                                <option value="3">Accept Application</option>
+                                                <option value="4">Reject Application</option>
+                                            </select>
+                                        </div>
+
+                                    </form>
+                                    <div id="actionFeedback"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">
+                                        Submit Decision
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </body>
+
+                    </html>

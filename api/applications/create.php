@@ -147,15 +147,15 @@ try {
     // Commit transaction
     $conn->commit();
 
-    // // Send confirmation email
-    // $mailer = new Mailer();
-    // $fullName = $firstname . ' ' . $lastname;
+    // Send confirmation email
+    $mailer = new Mailer();
+    $fullName = $firstname . ' ' . $lastname;
 
-    // $emailSent = $mailer->sendApplicationConfirmation(
-    //     $email,
-    //     $fullName,
-    //     $program_name
-    // );
+    $emailSent = $mailer->sendApplicationConfirmation(
+        $email,
+        $fullName,
+        $program_name
+    );
 
     echo json_encode([
         'status' => true,

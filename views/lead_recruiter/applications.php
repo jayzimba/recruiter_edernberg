@@ -198,6 +198,20 @@ checkAuth(['lead_recruiter']);
             });
         });
 
+        function logout() {
+            fetch('../../api/logout.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        localStorage.removeItem('jwt_token');
+                        window.location.href = '../login.php';
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout failed:', error);
+                });
+        }
+
         function loadApplications() {
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');
@@ -303,4 +317,5 @@ checkAuth(['lead_recruiter']);
     </script>
 </body>
 
+</html>
 </html>

@@ -1,0 +1,8 @@
++/storage/temp/*
+!storage/temp/.gitkeep
++/uploads/admissions/*
++/uploads/student_documents/*
++/uploads/temp/*
+!/uploads/admissions/.gitkeep
+!/uploads/student_documents/.gitkeep
+!/uploads/temp/.gitkeep
