@@ -3,6 +3,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use PhpOffice\PhpWord\TemplateProcessor;
 
+
 class DocumentProcessor
 {
     private $uploadsDir;
@@ -53,7 +54,7 @@ class DocumentProcessor
             $templateProcessor->setValue('student_name', ($applicationData['firstname'] ?? '') . ' ' . ($applicationData['lastname'] ?? ''));
             $templateProcessor->setValue('student_contact', $applicationData['contact'] ?? '');
             $templateProcessor->setValue('student_email', $applicationData['email'] ?? '');
-            $templateProcessor->setValue('student_id_number', $applicationData['G_ID'] ?? '');
+            $templateProcessor->setValue('student_id_number', $applicationData['student_id_number'] ?? '');
             $templateProcessor->setValue('recruiter_name', $applicationData['recruiter_name'] ?? '');
             $templateProcessor->setValue('student_program', $applicationData['program_name'] ?? '');
             $templateProcessor->setValue('student_admission_type', $applicationData['admission_type'] ?? '');
@@ -67,6 +68,7 @@ class DocumentProcessor
                 '_',
                 strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
             );
+            $docxFile = $this->uploadsDir . $safeName . '_' . date('Y_m_d') . '.docx';
             $fileName = $safeName . '_' . date('Y_m_d') . '.docx';
             $outputFile = $this->uploadsDir . $fileName;
 

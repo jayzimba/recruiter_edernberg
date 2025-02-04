@@ -23,7 +23,7 @@ if (isset($_SESSION['user_id'])) {
                 <div class="card shadow-sm">
                     <div class="card-body p-5">
 
-                        <div class="text-center"> <img src="../assets/icons/edernberg.jpeg"
+                        <div class="text-center"> <img src="../assets/icons/edernberg.png"
                                 alt="University Recruitment Logo" class="img-fluid mb-4" style="max-width: 200px;">
                             <h3>Recruitment System</h3>
                         </div>

@@ -29,6 +29,35 @@ try {
 
     // If status is "Accept" (status_id = 3), generate and send admission letter
     if ($data['status'] == 3) {
+        // Generate student ID number
+        $year = date('Y');
+
+        // Get the last student number for this year
+        $lastIdQuery = "SELECT MAX(CAST(SUBSTRING(student_id_number, 5) AS UNSIGNED)) as last_number 
+                        FROM students 
+                        WHERE student_id_number LIKE :year_prefix";
+
+        $stmt = $conn->prepare($lastIdQuery);
+        $yearPrefix = $year . '%';
+        $stmt->bindParam(':year_prefix', $yearPrefix);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Calculate next number
+        $nextNumber = ($result['last_number'] ?? 0) + 1;
+        $studentId = $year . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        // Update student ID number
+        $updateIdQuery = "UPDATE students 
+                         SET student_id_number = :student_id 
+                         WHERE id = :id 
+                         AND (student_id_number IS NULL OR student_id_number = '')";
+
+        $stmt = $conn->prepare($updateIdQuery);
+        $stmt->bindParam(':student_id', $studentId);
+        $stmt->bindParam(':id', $data['application_id']);
+        $stmt->execute();
+
         // Get application details
         $query = "SELECT 
             s.firstname,
@@ -36,7 +65,7 @@ try {
             s.middlename,
             s.email,
             s.contact,
-            s.G_ID,
+            s.student_id_number,
             s.created_at,
             i.intake_description as intake,
             p.program_name,
@@ -77,7 +106,8 @@ try {
                 'level' => $applicationData['level'],
                 'study_mode' => $applicationData['study_mode'],
                 'intake' => $applicationData['intake'],
-                'recruiter_email' => $applicationData['recruiter_email']
+                'recruiter_email' => $applicationData['recruiter_email'],
+                'student_id_number' => $applicationData['student_id_number']
             ],
             $docxPath
         );
