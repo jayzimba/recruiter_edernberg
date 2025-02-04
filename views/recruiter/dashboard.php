@@ -159,6 +159,9 @@ checkAuth(['recruiter', 'lead_recruiter']);
                         <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
                             Application</a>
                         <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
+                        <a class="nav-link" href="change-password.php">
+                            <i class="bi bi-key"></i> Change Password
+                        </a>
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
                                 class="bi bi-box-arrow-right"></i> Logout</a>
                     </nav>

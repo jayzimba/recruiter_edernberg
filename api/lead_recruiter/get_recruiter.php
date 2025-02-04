@@ -14,35 +14,33 @@ if (!$auth->isAuthenticated()) {
 
 try {
     if (!isset($_GET['id'])) {
-        throw new Exception('Program ID is required');
+        throw new Exception('Recruiter ID is required');
     }
 
     $database = new Database();
     $conn = $database->getConnection();
 
-    $query = "SELECT p.*, s.school_name, l.description as level_description 
-              FROM programs p
-              LEFT JOIN schools s ON p.school_id = s.id
-              LEFT JOIN levels l ON p.level_id = l.id
-              WHERE p.id = :id";
+    $query = "SELECT id, firstname, lastname, email, nrc_number, status 
+              FROM users 
+              WHERE id = :id AND role_id = (SELECT id FROM user_roles WHERE name = 'recruiter')";
+    
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':id', $_GET['id']);
     $stmt->execute();
 
-    $program = $stmt->fetch(PDO::FETCH_ASSOC);
+    $recruiter = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$program) {
-        throw new Exception('Program not found');
+    if (!$recruiter) {
+        throw new Exception('Recruiter not found');
     }
 
     echo json_encode([
         'status' => true,
-        'data' => $program
+        'data' => $recruiter
     ]);
 } catch (Exception $e) {
-    error_log("Error fetching program: " . $e->getMessage());
     echo json_encode([
         'status' => false,
         'message' => $e->getMessage()
     ]);
-}
+} 

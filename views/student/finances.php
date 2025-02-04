@@ -276,17 +276,17 @@ if (!isset($_SESSION['student_id'])) {
                         <div class="stat-card">
                             <i class="bi bi-cash"></i>
                             <h6>Total Fees</h6>
-                            <p class="mb-0">ZMW 150,000</p>
+                            <p class="mb-0">ZMW -</p>
                         </div>
                         <div class="stat-card">
                             <i class="bi bi-check-circle"></i>
                             <h6>Amount Paid</h6>
-                            <p class="mb-0">ZMW 100,000</p>
+                            <p class="mb-0">ZMW -</p>
                         </div>
                         <div class="stat-card">
                             <i class="bi bi-exclamation-circle"></i>
                             <h6>Balance</h6>
-                            <p class="mb-0">ZMW 50,000</p>
+                            <p class="mb-0">ZMW -</p>
                         </div>
                     </div>
                 </div>
@@ -311,7 +311,7 @@ if (!isset($_SESSION['student_id'])) {
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="receipts">
                             <!-- Receipts List -->
-                            <div class="transaction-item" onclick="showTransactionDetails('receipt-1')">
+                            <!-- <div class="transaction-item" onclick="showTransactionDetails('receipt-1')">
                                 <div class="transaction-icon icon-receipt">
                                     <i class="bi bi-receipt"></i>
                                 </div>
@@ -323,13 +323,13 @@ if (!isset($_SESSION['student_id'])) {
                                     <div class="transaction-amount amount-paid">ZMW 50,000</div>
                                     <span class="transaction-status status-paid">Paid</span>
                                 </div>
-                            </div>
+                            </div> -->
                             <!-- Add more receipt items -->
                         </div>
 
                         <div class="tab-pane fade" id="invoices">
                             <!-- Invoices List -->
-                            <div class="transaction-item" onclick="showTransactionDetails('invoice-1')">
+                            <!-- <div class="transaction-item" onclick="showTransactionDetails('invoice-1')">
                                 <div class="transaction-icon icon-invoice">
                                     <i class="bi bi-file-text"></i>
                                 </div>
@@ -341,7 +341,7 @@ if (!isset($_SESSION['student_id'])) {
                                     <div class="transaction-amount amount-pending">ZMW 50,000</div>
                                     <span class="transaction-status status-pending">Pending</span>
                                 </div>
-                            </div>
+                            </div> -->
                             <!-- Add more invoice items -->
                         </div>
                     </div>

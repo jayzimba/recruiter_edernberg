@@ -39,10 +39,19 @@ class Auth
 
             // Compare the hashed passwords directly
             if ($hashed_password === $row['password']) {
+
+
+                if ($row['status'] !== 1) {
+                    return [
+                        'status' => false,
+                        'message' => 'User account is inactive'
+                    ];
+                }
                 // Create session
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['user_role'] = $row['role_name'];
                 $_SESSION['user_email'] = $row['email'];
+    
 
                 // Create JWT token
                 $token = $this->generateJWT($row);
@@ -79,49 +88,39 @@ class Auth
         }
     }
 
-    public function changePassword($user_id, $current_password, $new_password)
+    public function changePassword($userId, $currentPassword, $newPassword)
     {
         try {
+            $database = new Database();
+            $conn = $database->getConnection();
+
             // Verify current password
-            $query = "SELECT password FROM " . $this->table . " WHERE id = :user_id LIMIT 1";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":user_id", $user_id);
+            $query = "SELECT password FROM users WHERE id = :user_id";
+            $stmt = $conn->prepare($query);
+            $stmt->bindParam(':user_id', $userId);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!password_verify($current_password, $user['password'])) {
-                return [
-                    'status' => false,
-                    'message' => 'Current password is incorrect'
-                ];
+            // Hash the current password with SHA-256 for comparison
+            $hashedCurrentPassword = hash('sha256', $currentPassword);
+            if (!$user || $hashedCurrentPassword !== $user['password']) {
+                throw new Exception('Current password is incorrect');
             }
 
             // Update password
-            $hashed_password = hash('sha256', $new_password);
-            $query = "UPDATE " . $this->table . " 
-                     SET password = :password 
-                     WHERE id = :user_id";
+            $newPasswordHash = hash('sha256', $newPassword);
+            $query = "UPDATE users SET password = :password WHERE id = :user_id";
+            $stmt = $conn->prepare($query);
+            $stmt->bindParam(':password', $newPasswordHash);
+            $stmt->bindParam(':user_id', $userId);
 
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":password", $hashed_password);
-            $stmt->bindParam(":user_id", $user_id);
-
-            if ($stmt->execute()) {
-                return [
-                    'status' => true,
-                    'message' => 'Password updated successfully'
-                ];
+            if (!$stmt->execute()) {
+                throw new Exception('Failed to update password');
             }
 
-            return [
-                'status' => false,
-                'message' => 'Failed to update password'
-            ];
-        } catch (PDOException $e) {
-            return [
-                'status' => false,
-                'message' => $e->getMessage()
-            ];
+            return true;
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 

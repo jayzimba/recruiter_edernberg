@@ -27,7 +27,7 @@ try {
 
     if (empty($data['id'])) {
         // Insert new school
-        $query = "INSERT INTO schools (name) VALUES (:name)";
+        $query = "INSERT INTO schools (school_name) VALUES (:name)";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $data['name']);
 
@@ -38,7 +38,7 @@ try {
         $message = 'School created successfully';
     } else {
         // Update existing school
-        $query = "UPDATE schools SET name = :name WHERE id = :id";
+        $query = "UPDATE schools SET school_name = :name WHERE id = :id";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':id', $data['id']);

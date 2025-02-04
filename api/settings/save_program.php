@@ -37,11 +37,12 @@ try {
 
     if (empty($data['id'])) {
         // Insert new program
-        $query = "INSERT INTO programs (name, school_id, duration, tuition_fee) 
-                 VALUES (:name, :school_id, :duration, :tuition_fee)";
+        $query = "INSERT INTO programs (program_name, school_id, level_id, duration, tuition_fee) 
+                 VALUES (:name, :school_id, :level_id, :duration, :tuition_fee)";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':school_id', $data['school_id']);
+        $stmt->bindParam(':level_id', $data['level_id']);
         $stmt->bindParam(':duration', $data['duration']);
         $stmt->bindParam(':tuition_fee', $data['tuition_fee']);
 
@@ -53,7 +54,7 @@ try {
     } else {
         // Update existing program
         $query = "UPDATE programs 
-                 SET name = :name, 
+                 SET program_name = :name, 
                      school_id = :school_id, 
                      duration = :duration, 
                      tuition_fee = :tuition_fee 
