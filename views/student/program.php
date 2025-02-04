@@ -273,8 +273,7 @@ if (!isset($_SESSION['student_id'])) {
                 </div>
             </div>
             <div class="col-md-9 col-lg-10 main-content">
-                <div class="back-button"><a href="dashboard.php" class="btn btn-outline-primary"><i
-                            class="bi bi-arrow-left"></i>Back to Dashboard </a></div>
+            
                 <div id="loadingSpinner" class="text-center my-5">
                     <div class="spinner-border text-primary" role="status"><span
                             class="visually-hidden">Loading...</span></div>

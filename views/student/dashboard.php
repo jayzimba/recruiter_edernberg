@@ -63,6 +63,9 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
             margin-bottom: 2rem;
             position: relative;
             overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .nav-link {
@@ -192,14 +195,21 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
                         <h4 class="mb-0">Welcome, <?php echo htmlspecialchars($student['firstname']); ?>!</h4>
                         <p class="text-muted mb-0"><?php echo htmlspecialchars($student['student_id_number']); ?></p>
                     </div>
-                    <button class="btn btn-primary">Make Online Payment</button>
+                    <button class="btn btn-primary" onclick="window.location.href='payment.php'">Make Online
+                        Payment</button>
                 </div>
 
                 <!-- Registration Status -->
-                <div class="program-banner">
-                    Registration Status : You are Registered for <?php echo htmlspecialchars($student['study_mode']); ?>
-                    -
-                    <?php echo date('Y'); ?>
+                <div class="program-banner"  class="d-flex justify-content-between">
+                   <div class="text-center d-flex flex-column justify-content-center">
+                        <div class="fs-4 fw-bold">You are Registered for <?php echo htmlspecialchars($student['study_mode']); ?>
+                            -
+                            <?php echo date('Y'); ?></div>
+                    </div>
+                    <div class="text-center d-flex flex-column justify-content-center">
+                            <div class="fs-3 text-white-50">Balance</div>
+                            <div class="fs-4 fw-bold">ZMW 1,000.00</div>
+                        </div>
                 </div>
 
                 <!-- Dashboard Cards -->
@@ -226,7 +236,7 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="dashboard-card">
+                        <div class="dashboard-card"  onclick="window.location.href='transcript.php'">
                             <i class="bi bi-mortarboard dashboard-icon"></i>
                             <h6>Transcript</h6>
                             <p class="text-muted small">View academic results</p>
@@ -251,10 +261,10 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="dashboard-card">
-                            <i class="bi bi-calendar3 dashboard-icon"></i>
-                            <h6>Class Timetable</h6>
-                            <p class="text-muted small">View your schedule</p>
+                        <div class="dashboard-card" onclick="window.location.href='exam-registration.php'">
+                            <i class="bi bi-receipt dashboard-icon"></i>
+                            <h6>Exam Registration</h6>
+                            <p class="text-muted small">Regestgr forster fexamoexams</p>
                         </div>
                     </div>
                 </div>
