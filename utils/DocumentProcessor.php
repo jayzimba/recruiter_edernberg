@@ -2,27 +2,36 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use PhpOffice\PhpWord\TemplateProcessor;
-
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Settings;
 
 class DocumentProcessor
 {
     private $uploadsDir;
+    private $pdfDir;
 
     public function __construct()
     {
-        // Use DIRECTORY_SEPARATOR for cross-platform compatibility
-        $this->uploadsDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . 
+        // Set up directories
+        $baseDir = dirname(__DIR__);
+        $this->uploadsDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
                            DIRECTORY_SEPARATOR . 'admissions' . DIRECTORY_SEPARATOR;
+        $this->pdfDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
+                        DIRECTORY_SEPARATOR . 'pdf_admissions' . DIRECTORY_SEPARATOR;
 
         // Create directories with error handling
         $this->ensureDirectoryExists($this->uploadsDir);
+        $this->ensureDirectoryExists($this->pdfDir);
 
         // Set custom temp directory for PhpWord
-        $tempDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . 
+        $tempDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
                   DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         $this->ensureDirectoryExists($tempDir);
         
-        \PhpOffice\PhpWord\Settings::setTempDir($tempDir);
+        Settings::setTempDir($tempDir);
+        // Configure PDF renderer
+        Settings::setPdfRendererPath($baseDir . '/vendor/dompdf/dompdf');
+        Settings::setPdfRendererName(Settings::PDF_RENDERER_DOMPDF);
     }
 
     private function ensureDirectoryExists($dir)
@@ -55,60 +64,98 @@ class DocumentProcessor
     public function generateAdmissionLetter($applicationData)
     {
         try {
-            // Debug log
-            error_log("Starting document generation with data: " . json_encode($applicationData));
+            // Generate DOCX file first
+            $docxFile = $this->generateDocxLetter($applicationData);
+            
+            // Convert to PDF and store it
+            $pdfFile = $this->convertToPDF($docxFile, $applicationData);
+            
+            return [
+                'docx' => $docxFile,
+                'pdf' => $pdfFile
+            ];
+        } catch (Exception $e) {
+            error_log("Document generation error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            throw $e;
+        }
+    }
 
-            // Select template based on study mode
-            $studyMode = strtolower($applicationData['study_mode'] ?? '');
-            $isDistance = in_array($studyMode, ['distance learning', 'online learning'], true);
-            $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . 
-                          DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
-                          ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
+    private function generateDocxLetter($applicationData)
+    {
+        // Select template based on study mode
+        $studyMode = strtolower($applicationData['study_mode'] ?? '');
+        $isDistance = in_array($studyMode, ['distance', 'online'], true);
+        $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . 
+                       DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+                       ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
 
-            error_log("Using template: " . $templatePath);
+        error_log("Using template: " . $templatePath);
 
-            if (!file_exists($templatePath)) {
-                throw new Exception('Template file not found: ' . $templatePath);
-            }
+        if (!file_exists($templatePath)) {
+            throw new Exception('Template file not found: ' . $templatePath);
+        }
 
-            // Load template
-            try {
-                $templateProcessor = new TemplateProcessor($templatePath);
-            } catch (Exception $e) {
-                error_log("Template processing error: " . $e->getMessage());
-                throw $e;
-            }
+        // Load template
+        $templateProcessor = new TemplateProcessor($templatePath);
 
-            // Replace variables in template
-            $templateProcessor->setValue('student_name', ($applicationData['firstname'] ?? '') . ' ' . ($applicationData['lastname'] ?? ''));
-            $templateProcessor->setValue('student_contact', $applicationData['contact'] ?? '');
-            $templateProcessor->setValue('student_email', $applicationData['email'] ?? '');
-            $templateProcessor->setValue('student_id_number', $applicationData['student_id_number'] ?? '');
-            $templateProcessor->setValue('recruiter_name', $applicationData['recruiter_name'] ?? '');
-            $templateProcessor->setValue('student_program', $applicationData['program_name'] ?? '');
-            $templateProcessor->setValue('student_admission_type', $applicationData['admission_type'] ?? '');
-            $templateProcessor->setValue('date', date('d/m/Y'));
-            $templateProcessor->setValue('date_of_registration', date('d/m/Y'));
-            $templateProcessor->setValue('date_of_commencement', date('d/m/Y', strtotime('+1 week')));
+        // Replace variables in template
+        $templateProcessor->setValue('student_name', ($applicationData['firstname'] ?? '') . ' ' . ($applicationData['lastname'] ?? ''));
+        $templateProcessor->setValue('student_contact', $applicationData['contact'] ?? '');
+        $templateProcessor->setValue('student_email', $applicationData['email'] ?? '');
+        $templateProcessor->setValue('student_number', $applicationData['student_id_number'] ?? '');
+        $templateProcessor->setValue('G_ID', $applicationData['G_ID'] ?? '');
+        $templateProcessor->setValue('student_study_mode', $applicationData['study_mode'] ?? '');
+        $templateProcessor->setValue('student_nationality', $applicationData['nationality'] ?? '');
+        $templateProcessor->setValue('tuition_fee', $applicationData['tuition_fee'] ?? '');
+        $templateProcessor->setValue('student_duration', $applicationData['duration'] ?? '');
+        $templateProcessor->setValue('recruiter_name', $applicationData['recruiter_name'] ?? '');
+        $templateProcessor->setValue('student_program', $applicationData['program_name'] ?? '');
+        $templateProcessor->setValue('admission_type', strtoupper($applicationData['admission_type'] ?? ''));
+        $templateProcessor->setValue('date', date('d/m/Y'));
+        $templateProcessor->setValue('date_of_registration', date('d/m/Y'));
+        $templateProcessor->setValue('date_of_commencement', $applicationData['intake'] ?? '');
+        $templateProcessor->setValue('level', $applicationData['level'] ?? '');
+        $templateProcessor->setValue('duration', $applicationData['duration'] ?? '');
+        // Create safe filename
+        $safeName = preg_replace(
+            '/[^a-zA-Z0-9]/',
+            '_',
+            strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
+        );
+        
+        $fileName = $safeName . '_' . date('Y_m_d') . '.docx';
+        $outputFile = $this->uploadsDir . $fileName;
 
-            // Create a safe filename from student name and date
+        error_log("Saving DOCX to: " . $outputFile);
+        $templateProcessor->saveAs($outputFile);
+
+        return $outputFile;
+    }
+
+    private function convertToPDF($docxFile, $applicationData)
+    {
+        try {
+            // Load the DOCX file
+            $phpWord = IOFactory::load($docxFile);
+
+            // Create PDF filename
             $safeName = preg_replace(
                 '/[^a-zA-Z0-9]/',
                 '_',
                 strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
             );
-            
-            // Use DIRECTORY_SEPARATOR for file paths
-            $fileName = $safeName . '_' . date('Y_m_d') . '.docx';
-            $outputFile = $this->uploadsDir . $fileName;
+            $pdfFileName = $safeName . '_' . date('Y_m_d') . '.pdf';
+            $pdfFile = $this->pdfDir . $pdfFileName;
 
-            error_log("Saving to: " . $outputFile);
-            $templateProcessor->saveAs($outputFile);
+            // Save as PDF
+            $xmlWriter = IOFactory::createWriter($phpWord, 'PDF');
+            $xmlWriter->save($pdfFile);
 
-            return $outputFile;
+            error_log("Saved PDF to: " . $pdfFile);
+            return $pdfFile;
         } catch (Exception $e) {
-            error_log("Document generation error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-            throw $e;
+            error_log("PDF conversion error: " . $e->getMessage());
+            throw new Exception("Failed to convert document to PDF: " . $e->getMessage());
         }
     }
 }

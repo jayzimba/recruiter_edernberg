@@ -126,23 +126,21 @@ class Mailer
                     <p>Your intake is scheduled for {$data['intake']}.</p>
                     
                     <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
-                        <h3 style='color: #4A90E2; margin-top: 0;'>Student Portal Access</h3>
                         <p><strong>Your Student ID:</strong> {$data['student_id_number']}</p>
-                        <p><strong>Default Password:</strong> Password@2025</p>
-                        <p><strong>Portal Link:</strong> <a href='https://portal.edenberg.edu'>https://portal.edenberg.edu</a></p>
+                        <p><strong>for more information contact your recruiting officer:</strong> {$data['recruiter_email']}</p>
                         <p style='color: #dc3545;'><strong>Important:</strong> Please change your password upon first login.</p>
                     </div>
                     
-                    <p>If you have any questions, please contact our admissions office.</p>
+                    <p>If you have any questions, please contact your recruiting officer on: {$data['recruiter_phone_number']}</p>
                     
                     <p style='margin-top: 20px;'>Best regards,<br>
                     University of Edenberg Admissions Team</p>
                 </div>
             ";
-
+            
             $this->mail->Body = $body;
             $this->mail->addAttachment($attachmentPath, 'Admission_Letter.pdf');
-
+            
             return $this->mail->send();
         } catch (Exception $e) {
             error_log("Failed to send admission letter to {$data['student_email']}: " . $e->getMessage());

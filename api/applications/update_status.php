@@ -60,21 +60,26 @@ try {
 
         // Get application details
         $query = "SELECT 
-            s.firstname,
+             s.firstname,
             s.lastname,
             s.middlename,
             s.email,
             s.contact,
             s.student_id_number,
             s.created_at,
+            s.nationality,
+            s.G_ID,
+            s.student_id_number,
             i.intake_description as intake,
             p.program_name,
             p.duration,
+            p.tuition_fee,
             l.description as level,
             sm.mode_name as study_mode,
             adm.admission_description as admission_type,
             CONCAT(u.firstname, ' ', u.lastname) as recruiter_name,
-            u.email as recruiter_email
+            u.email as recruiter_email,
+            u.phone_number as recruiter_phone_number
         FROM students s
         LEFT JOIN programs p ON s.program_id = p.id
         LEFT JOIN intake i ON s.intake_id = i.id
@@ -90,11 +95,11 @@ try {
         $stmt->execute();
         $applicationData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Generate admission letter
-        $docProcessor = new DocumentProcessor();
-        $docxPath = $docProcessor->generateAdmissionLetter($applicationData);
+        // Generate both DOCX and PDF versions
+        $documentProcessor = new DocumentProcessor();
+        $files = $documentProcessor->generateAdmissionLetter($applicationData);
 
-        // Send email with attachment
+        // Send email with both formats
         $mailer = new Mailer();
         $mailer->sendAdmissionLetter(
             $applicationData['email'],
@@ -106,14 +111,31 @@ try {
                 'level' => $applicationData['level'],
                 'study_mode' => $applicationData['study_mode'],
                 'intake' => $applicationData['intake'],
+                'G_ID' => $applicationData['G_ID'],
                 'recruiter_email' => $applicationData['recruiter_email'],
-                'student_id_number' => $applicationData['student_id_number']
+                'student_id_number' => $applicationData['student_id_number'],
+                'student_nationality' => $applicationData['nationality'],
+                'tuition_fee' => $applicationData['tuition_fee'],
+                'duration' => $applicationData['duration'],
+                'admission_type' => $applicationData['admission_type'],
+                'date_of_registration' => date('d/m/Y', strtotime('+1 month')),
+                'date_of_commencement' => $applicationData['intake'],
+                'recruiter_phone_number' => $applicationData['recruiter_phone_number']
             ],
-            $docxPath
+            $files['pdf'] // Send the PDF version
         );
 
-        // Clean up DOCX file
-        unlink($docxPath);
+        // Store file paths in database
+        $updateFilesQuery = "UPDATE students SET 
+            admission_letter_docx = :docx,
+            admission_letter_pdf = :pdf 
+            WHERE id = :id";
+        
+        $stmt = $conn->prepare($updateFilesQuery);
+        $stmt->bindParam(':docx', $files['docx']);
+        $stmt->bindParam(':pdf', $files['pdf']);
+        $stmt->bindParam(':id', $data['application_id']);
+        $stmt->execute();
     }
 
     // Update application status
