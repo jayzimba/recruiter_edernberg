@@ -10,18 +10,46 @@ class DocumentProcessor
 
     public function __construct()
     {
-        // Set uploads directory
-        $this->uploadsDir = dirname(__DIR__) . '/uploads/admissions/';
-        if (!file_exists($this->uploadsDir)) {
-            mkdir($this->uploadsDir, 0777, true);
-        }
+        // Use DIRECTORY_SEPARATOR for cross-platform compatibility
+        $this->uploadsDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . 
+                           DIRECTORY_SEPARATOR . 'admissions' . DIRECTORY_SEPARATOR;
+
+        // Create directories with error handling
+        $this->ensureDirectoryExists($this->uploadsDir);
 
         // Set custom temp directory for PhpWord
-        $tempDir = dirname(__DIR__) . '/uploads/temp/';
-        if (!file_exists($tempDir)) {
-            mkdir($tempDir, 0777, true);
-        }
+        $tempDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . 
+                  DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $this->ensureDirectoryExists($tempDir);
+        
         \PhpOffice\PhpWord\Settings::setTempDir($tempDir);
+    }
+
+    private function ensureDirectoryExists($dir)
+    {
+        if (!file_exists($dir)) {
+            try {
+                if (!mkdir($dir, 0777, true)) {
+                    throw new Exception("Failed to create directory: $dir");
+                }
+                // On Windows, mkdir permission parameter is ignored
+                // Explicitly set permissions after creation
+                chmod($dir, 0777);
+            } catch (Exception $e) {
+                error_log("Directory creation error: " . $e->getMessage());
+                error_log("Path: $dir");
+                error_log("Current user: " . get_current_user());
+                error_log("PHP process user: " . shell_exec('whoami'));
+                throw new Exception("Failed to create or set permissions on directory: $dir");
+            }
+        }
+
+        // Verify directory is writable
+        if (!is_writable($dir)) {
+            error_log("Directory not writable: $dir");
+            error_log("Current permissions: " . substr(sprintf('%o', fileperms($dir)), -4));
+            throw new Exception("Directory not writable: $dir");
+        }
     }
 
     public function generateAdmissionLetter($applicationData)
@@ -33,8 +61,9 @@ class DocumentProcessor
             // Select template based on study mode
             $studyMode = strtolower($applicationData['study_mode'] ?? '');
             $isDistance = in_array($studyMode, ['distance learning', 'online learning'], true);
-            $templatePath = dirname(__DIR__) . '/assets/templates/' .
-                ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
+            $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . 
+                          DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+                          ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
 
             error_log("Using template: " . $templatePath);
 
@@ -68,7 +97,8 @@ class DocumentProcessor
                 '_',
                 strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
             );
-            $docxFile = $this->uploadsDir . $safeName . '_' . date('Y_m_d') . '.docx';
+            
+            // Use DIRECTORY_SEPARATOR for file paths
             $fileName = $safeName . '_' . date('Y_m_d') . '.docx';
             $outputFile = $this->uploadsDir . $fileName;
 
