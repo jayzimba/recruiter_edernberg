@@ -34,7 +34,7 @@ try {
     }
 
     // Check if recruiter has any applications
-    $query = "SELECT COUNT(*) as count FROM applications WHERE recruiter_id = :id";
+    $query = "SELECT COUNT(*) as count FROM students WHERE recruiter_id = :id";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':id', $data['id']);
     $stmt->execute();

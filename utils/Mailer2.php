@@ -16,33 +16,26 @@ class Mailer
 
         try {
             // Server settings
-            $this->mail->SMTPDebug = SMTP::DEBUG_OFF;  // Change to DEBUG_SERVER when testing
+            $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;  // Enable verbose debug output
             $this->mail->isSMTP();
-            $this->mail->Host = 'smtp.gmail.com';
+            $this->mail->Host = 'ue.ac.zn';  // Outgoing server from your settings
             $this->mail->SMTPAuth = true;
-            $this->mail->Username = 'uoe.enrolments@gmail.com';
-            $this->mail->Password = 'tunc tzkh hito lyyf';
-            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // Try STARTTLS instead
-            $this->mail->Port = 587;  // Use port 587 for STARTTLS
-            $this->mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
+            $this->mail->Username = 'admissions.edenberguniversity@ue.ac.zm';  // Your email address
+            $this->mail->Password = 'n6D7K%yVmaqA';  // Your email account's password
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // Use TLS
+            $this->mail->Port = 587;  // Use port 587 for TLS
 
             // Additional settings for reliability
             $this->mail->Timeout = 30;  // Increase timeout
             $this->mail->CharSet = 'UTF-8';
             $this->mail->isHTML(true);
-            $this->mail->setFrom('jayzimba40@gmail.com', 'University Recruitment', false);
+            $this->mail->setFrom('admissions.edenberguniversity@ue.ac.zm', 'University Recruitment', false);
         } catch (Exception $e) {
             error_log("Mailer initialization error: " . $e->getMessage() . "\n" . print_r($this->mail->ErrorInfo, true));
             throw $e;
         }
     }
-
+    
     public function sendApplicationConfirmation($studentEmail, $studentName, $programName)
     {
         try {
@@ -79,8 +72,8 @@ class Mailer
                     
                     <div style='margin-top: 20px; padding: 20px; background-color: #f5f5f5;'>
                         <p style='margin: 0;'><strong>Contact Information:</strong></p>
-                        <p style='margin: 5px 0;'>Phone: +260972642385</p>
-                        <p style='margin: 5px 0;'>Email: admissions.edenberguniversity@ue.ac.zm</p>
+                        <p style='margin: 5px 0;'>Phone: +123456789</p>
+                        <p style='margin: 5px 0;'>Email: admissions@edernberguniversity.com</p>
                     </div>
                     
                     <p style='margin-top: 20px;'>Best regards,<br>
@@ -137,10 +130,10 @@ class Mailer
                     University of Edenberg Admissions Team</p>
                 </div>
             ";
-            
+
             $this->mail->Body = $body;
             $this->mail->addAttachment($attachmentPath, 'Admission_Letter.pdf');
-            
+
             return $this->mail->send();
         } catch (Exception $e) {
             error_log("Failed to send admission letter to {$data['student_email']}: " . $e->getMessage());
@@ -148,12 +141,13 @@ class Mailer
         }
     }
 
-    public function sendWelcomeEmail($recruiterEmail, $recruiterName, $leadRecruiterName, $leadRecruiterEmail) {
+    public function sendWelcomeEmail($recruiterEmail, $recruiterName, $leadRecruiterName, $leadRecruiterEmail)
+    {
         try {
             $this->mail->addAddress($recruiterEmail);
             $this->mail->isHTML(true);
             $this->mail->Subject = 'Welcome to Edernberg University Recruitment Portal';
-            
+
             // Email body
             $body = "
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
@@ -178,7 +172,7 @@ class Mailer
                     <p>This is an automated message. Please do not reply to this email.</p>
                 </div>
             </div>";
-            
+
             $this->mail->Body = $body;
             $this->mail->send();
             return true;

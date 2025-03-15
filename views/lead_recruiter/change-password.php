@@ -190,52 +190,17 @@ checkAuth(['recruiter', 'lead_recruiter']);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3"><?php echo $_SESSION['user_role'] === 'lead_recruiter' ? 'Lead Recruiter' : 'Recruiter'; ?></h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="dashboard.php">
-                            <i class="bi bi-house-door"></i> Dashboard
-                        </a>
-                        <?php if ($_SESSION['user_role'] === 'lead_recruiter'): ?>
-                            <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
-                            <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> All Applications</a>
-                            <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                            <a class="nav-link" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
-                        <?php else: ?>
-                            <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
-                            <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New Application</a>
-                        <?php endif; ?>
-                        <a class="nav-link active" href="#"><i class="bi bi-key"></i> Change Password</a>
-                        <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Include Sidebar -->
+            <?php include '../../includes/lead_recruiter_sidebar.php'; ?>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
-                 <!-- Header -->
-                 <div class="header mb-4 d-flex justify-content-between align-items-center">
-                    <button class="sidebar-toggle d-md-none" id="sidebarToggle">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <h4 class="m-0 d-md-block d-none">Change Password</h4>
+                <!-- Include Header -->
+                <?php include '../../includes/lead_recruiter_header.php'; ?>
 
-
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <?php echo strtoupper(substr($_SESSION['user_email'], 0, 1)); ?>
-                        </div>
-                        <div>
-                            <!-- <small class="text-muted">Welcome,</small> -->
-                            <div class="fw-bold"><?php echo $_SESSION['user_email']; ?></div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="info-card">
+                        <div class="password-card">
                             <div id="alertMessage"></div>
                             <form id="changePasswordForm" onsubmit="handlePasswordChange(event)">
                                 <div class="mb-3">
@@ -344,44 +309,3 @@ function checkPasswordStrength(password) {
             .then(data => {
                 if (data.status) {
                     alert.innerHTML = `
-                        <div class="alert alert-success">
-                            ${data.message}
-                        </div>
-                    `;
-                    event.target.reset();
-                } else {
-                    alert.innerHTML = `
-                        <div class="alert alert-danger">
-                            ${data.message}
-                        </div>
-                    `;
-                }
-                button.disabled = false;
-                button.innerHTML = 'Change Password';
-            })
-            .catch(error => {
-                alert.innerHTML = `
-                    <div class="alert alert-danger">
-                        An error occurred. Please try again.
-                    </div>
-                `;
-                button.disabled = false;
-                button.innerHTML = 'Change Password';
-            });
-    }
-       
-
-        function logout() {
-            fetch('../../api/logout.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        window.location.href = '../login.php';
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    </script>
-</body>
-
-</html> 

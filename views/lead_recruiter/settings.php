@@ -103,27 +103,14 @@ checkAuth(['lead_recruiter']);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3">Lead Recruiter</h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
-                        <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
-                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> All Applications</a>
-                        <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                        <a class="nav-link active" href="#"><i class="bi bi-gear"></i> Settings</a>
-                        <a class="nav-link" href="change-password.php">
-                            <i class="bi bi-key"></i> Change Password
-                        </a>
-                        <a class="nav-link" href="#" onclick="logout(); return false;"><i
-                                class="bi bi-box-arrow-right"></i> Logout</a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Include Sidebar -->
+            <?php include '../../includes/lead_recruiter_sidebar.php'; ?>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+                <!-- Include Header -->
+                <?php include '../../includes/lead_recruiter_header.php'; ?>
+
                 <div class="settings-card">
                     <ul class="nav nav-tabs mb-4" role="tablist">
                         <li class="nav-item">

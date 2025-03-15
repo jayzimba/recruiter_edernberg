@@ -15,30 +15,6 @@ checkAuth(['lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-        .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
-        }
-
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .nav-link i {
-            margin-right: 10px;
-        }
-
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
@@ -87,28 +63,14 @@ checkAuth(['lead_recruiter']);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3">Lead Recruiter</h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
-                        <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
-                        <a class="nav-link " href="applications.php"><i class="bi bi-list-ul"></i> All
-                            Applications</a>
-                        <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                        <a class="nav-link active" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
-                        <a class="nav-link" href="change-password.php">
-                            <i class="bi bi-key"></i> Change Password
-                        </a>
-                        <a class="nav-link" href="#" onclick="logout(); return false;"><i
-                                class="bi bi-box-arrow-right"></i>
-                            Logout</a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Include Sidebar -->
+            <?php include '../../includes/lead_recruiter_sidebar.php'; ?>
+
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+                <!-- Include Header -->
+                <?php include '../../includes/lead_recruiter_header.php'; ?>
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0">Application Details</h4>
                     <div>

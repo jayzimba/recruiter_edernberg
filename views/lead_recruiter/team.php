@@ -13,30 +13,6 @@ checkAuth(['lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-       .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
-        }
-
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .nav-link i {
-            margin-right: 10px;
-        }
-
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
@@ -88,6 +64,7 @@ checkAuth(['lead_recruiter']);
                 transform: rotate(360deg);
             }
         }
+
         .team-card {
             background: white;
             border-radius: 15px;
@@ -170,26 +147,16 @@ checkAuth(['lead_recruiter']);
 </head>
 
 <body>
+
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3">Lead Recruiter</h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
-                        <a class="nav-link active" href="#"><i class="bi bi-people"></i> Team Management</a>
-                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> All Applications</a>
-                        <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                        <a class="nav-link" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
-                        <a class="nav-link" href="change-password.php"><i class="bi bi-key"></i> Change Password</a>
-                        <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                    </nav>
-                </div>
-            </div>
+
+            <?php include '../../includes/lead_recruiter_sidebar.php'; ?>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+                <?php include '../../includes/lead_recruiter_header.php'; ?>
+
                 <!-- Header -->
                 <div class="header mb-4 d-flex justify-content-between align-items-center">
                     <h4 class="m-0">Team Management</h4>
@@ -218,9 +185,28 @@ checkAuth(['lead_recruiter']);
                     </div>
                 </div>
 
-                <!-- Recruiters List -->
-                <div id="recruitersList">
-                    <!-- Recruiters will be loaded here -->
+                <!-- Recruiters Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>NRC Number</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recruitersList">
+                                    <tr>
+                                        <td colspan="5" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,10 +236,14 @@ checkAuth(['lead_recruiter']);
                             <input type="text" class="form-control" id="nrc" required>
                         </div>
                         <div class="mb-3">
+                            <label for="phone" class="form-label required">Phone number</label>
+                            <input type="text" class="form-control" id="phone" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="email" class="form-label required">Email</label>
                             <input type="email" class="form-control" id="email" required>
                         </div>
-                      
+
                         <div class="mb-3">
                             <label for="status" class="form-label required">Status</label>
                             <select class="form-select" id="status" required>
@@ -281,59 +271,71 @@ checkAuth(['lead_recruiter']);
             fetch('../../api/lead_recruiter/get_recruiters.php')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     if (data.status) {
                         updateRecruitersList(data.data);
+                    } else {
+                        showAlert('danger', 'Failed to load recruiters');
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'An error occurred while loading recruiters');
+                });
         }
 
         function updateRecruitersList(recruiters) {
             const container = document.getElementById('recruitersList');
+            if (!recruiters || !recruiters.length) {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">No recruiters found</td>
+                    </tr>`;
+                return;
+            }
+
             container.innerHTML = recruiters.map(recruiter => `
-                <div class="recruiter-card">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-3">
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
                             <div class="recruiter-avatar">
                                 ${recruiter.firstname.charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                                <h6 class="mb-1">${recruiter.firstname} ${recruiter.lastname}</h6>
-                                <div class="text-muted small">${recruiter.email}</div>
-                                <div class="text-muted small">NRC: ${recruiter.nrc_number}</div>
-                            </div>
+                            <div>${recruiter.firstname} ${recruiter.lastname}</div>
                         </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="status-badge ${recruiter.status === 1 ? 'status-active' : 'status-inactive'}">
-                                ${recruiter.status === 1 ? 'Active' : 'Inactive'}
-                            </span>
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary" onclick="editRecruiter(${recruiter.id})">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRecruiter(${recruiter.id})">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    </td>
+                    <td>${recruiter.email}</td>
+                    <td>${recruiter.nrc_number}</td>
+                    <td>
+                        <span class="status-badge ${recruiter.status === 1 ? 'status-active' : 'status-inactive'}">
+                            ${recruiter.status === 1 ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="editRecruiter(${recruiter.id})">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRecruiter(${recruiter.id})">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
             `).join('');
         }
 
         function searchRecruiters() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('#recruitersList tr');
             
-            const cards = document.querySelectorAll('.recruiter-card');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                const status = card.querySelector('.status-badge').textContent.toLowerCase();
+            rows.forEach(row => {
+                if (row.cells.length === 1) return; // Skip "No recruiters found" row
+                
+                const text = row.textContent.toLowerCase();
+                const status = row.querySelector('.status-badge').textContent.toLowerCase();
                 const matchesSearch = text.includes(searchTerm);
                 const matchesStatus = !statusFilter || status.includes(statusFilter);
                 
-                card.style.display = matchesSearch && matchesStatus ? 'block' : 'none';
+                row.style.display = matchesSearch && matchesStatus ? '' : 'none';
             });
         }
 
@@ -359,6 +361,7 @@ checkAuth(['lead_recruiter']);
                         document.getElementById('lastName').value = recruiter.lastname;
                         document.getElementById('nrc').value = recruiter.nrc_number;
                         document.getElementById('email').value = recruiter.email;
+                        document.getElementById('phone').value = recruiter.phone_number;
                         document.getElementById('status').value = recruiter.status === 1 ? 'active' : 'inactive';
                         document.getElementById('modalTitle').textContent = 'Edit Recruiter';
                         new bootstrap.Modal(document.getElementById('recruiterModal')).show();
@@ -385,7 +388,9 @@ checkAuth(['lead_recruiter']);
                 firstname: document.getElementById('firstName').value,
                 lastname: document.getElementById('lastName').value,
                 nrc_number: document.getElementById('nrc').value,
+                phone: document.getElementById('phone').value,
                 email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
                 status: document.getElementById('status').value === 'active' ? 1 : 0
             };
 
@@ -394,44 +399,16 @@ checkAuth(['lead_recruiter']);
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
 
             fetch('../../api/lead_recruiter/save_recruiter.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(recruiterData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    bootstrap.Modal.getInstance(document.getElementById('recruiterModal')).hide();
-                    showAlert('success', data.message);
-                    loadRecruiters();
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred while saving');
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Save';
-            });
-        }
-
-        function deleteRecruiter(id) {
-            if (confirm('Are you sure you want to delete this recruiter? This action cannot be undone.')) {
-                fetch('../../api/lead_recruiter/delete_recruiter.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ id: id })
+                    body: JSON.stringify(recruiterData)
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status) {
+                        bootstrap.Modal.getInstance(document.getElementById('recruiterModal')).hide();
                         showAlert('success', data.message);
                         loadRecruiters();
                     } else {
@@ -440,8 +417,38 @@ checkAuth(['lead_recruiter']);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('danger', 'An error occurred while deleting');
+                    showAlert('danger', 'An error occurred while saving');
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Save';
                 });
+        }
+
+        function deleteRecruiter(id) {
+            if (confirm('Are you sure you want to delete this recruiter? This action cannot be undone.')) {
+                fetch('../../api/lead_recruiter/delete_recruiter.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: id
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            showAlert('success', data.message);
+                            loadRecruiters();
+                        } else {
+                            showAlert('danger', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('danger', 'An error occurred while deleting');
+                    });
             }
         }
 
@@ -456,21 +463,8 @@ checkAuth(['lead_recruiter']);
             setTimeout(() => alertDiv.remove(), 3000);
         }
 
-        function logout() {
-            fetch('../../api/logout.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        localStorage.removeItem('jwt_token');
-                        window.location.href = '../login.php';
-                    }
-                })
-                .catch(error => {
-                    console.error('Logout failed:', error);
-                });
-        }
-
+      
     </script>
 </body>
 
-</html> 
+</html>

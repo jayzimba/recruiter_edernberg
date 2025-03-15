@@ -13,14 +13,6 @@ checkAuth(['lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-        /* Same styles as recruiter dashboard */
-        .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
-        }
-
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
@@ -36,62 +28,6 @@ checkAuth(['lead_recruiter']);
 
         .stat-card:hover {
             transform: translateY(-5px);
-        }
-
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .nav-link i {
-            margin-right: 10px;
-        }
-
-        .header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .recent-applications {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .team-member {
-            padding: 1rem;
-            border-radius: 10px;
-            background: white;
-            margin-bottom: 1rem;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
         }
 
         .stats-card {
@@ -123,41 +59,13 @@ checkAuth(['lead_recruiter']);
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
-                <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3">Lead Recruiter</h4>
-                    <nav class="nav flex-column">
-                        <a class="nav-link active" href="#"><i class="bi bi-house-door"></i> Dashboard</a>
-                        <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
-                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> All Applications</a>
-                        <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                        <a class="nav-link" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
-                        <a class="nav-link" href="change-password.php">
-                            <i class="bi bi-key"></i> Change Password
-                        </a>
-                        <a class="nav-link" href="#" onclick="logout(); return false;"><i
-                                class="bi bi-box-arrow-right"></i>
-                            Logout</a>
-                    </nav>
-                </div>
-            </div>
+            <!-- Include Sidebar -->
+            <?php include '../../includes/lead_recruiter_sidebar.php'; ?>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
-                <!-- Header -->
-                <div class="header mb-4 d-flex justify-content-between align-items-center">
-                    <h4 class="m-0">Lead Dashboard Overview</h4>
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <?php echo strtoupper(substr($_SESSION['user_email'], 0, 1)); ?>
-                        </div>
-                        <div>
-                            <small class="text-muted">Welcome,</small>
-                            <div class="fw-bold"><?php echo $_SESSION['user_email']; ?></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Include Header -->
+                <?php include '../../includes/lead_recruiter_header.php'; ?>
 
                 <!-- Stats Cards -->
                 <div class="row g-4 mb-4">
@@ -193,11 +101,9 @@ checkAuth(['lead_recruiter']);
                     <div class="col-md-8">
                         <div class="stats-card">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h5 class="mb-3">Top (5) Applications</h5> <a href="applications.php"
-                                    class="btn btn-sm btn-link">View All</a>
+                                <h5 class="mb-3">Top (5) Applications</h5>
+                                <a href="applications.php" class="btn btn-sm btn-link">View All</a>
                             </div>
-
-
                             <div class="recent-applications">
                                 <div class="table-responsive">
                                     <table class="table table-hover">
