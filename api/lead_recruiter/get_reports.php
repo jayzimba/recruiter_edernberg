@@ -37,16 +37,19 @@ try {
             p.program_name,
             CONCAT(u.firstname, ' ', u.lastname) as recruiter_name,
             s.created_at as application_date,
-            s.application_status,
             s.commencement_date,
             s.updated_at,
             sm.mode_name as study_mode,
-            l.description as program_level
+            l.description as program_level,
+            s.application_status,
+            s.student_status as paid_up,
+            ss.description as paid_up_description
         FROM students s
         LEFT JOIN programs p ON s.program_id = p.id
         LEFT JOIN users u ON s.recruiter_id = u.id
         LEFT JOIN study_modes sm ON s.study_mode_id = sm.id
         LEFT JOIN levels l ON p.level_id = l.id
+        LEFT JOIN student_status ss ON s.student_status = ss.id
         WHERE 1=1
     ";
 
@@ -76,6 +79,12 @@ try {
     if (!empty($data['status'])) {
         $whereConditions[] = "s.application_status = :status";
         $params[':status'] = $data['status'];
+    }
+
+    // Add paid up filter
+    if (!empty($data['paidUp'])) {
+        $whereConditions[] = "s.student_status = :paid_up";
+        $params[':paid_up'] = $data['paidUp'];
     }
 
     // Combine where conditions
@@ -159,18 +168,21 @@ try {
                 'firstname' => $row['firstname'],
                 'lastname' => $row['lastname'],
                 'middlename' => $row['middlename'],
+                'student_name' => $row['student_name'],
                 'email' => $row['email'],
                 'contact' => $row['contact'],
                 'nationality' => $row['nationality'],
                 'G_ID' => $row['G_ID'],
                 'program_name' => $row['program_name'],
-                'study_mode' => $row['study_mode'],
-                'program_level' => $row['program_level'],
                 'recruiter_name' => $row['recruiter_name'],
                 'created_at' => $row['application_date'],
-                'application_status' => $row['application_status'],
+                'status' => $row['application_status'],
                 'commencement_date' => $row['commencement_date'],
-                'updated_at' => $row['updated_at']
+                'updated_at' => $row['updated_at'],
+                'study_mode' => $row['study_mode'],
+                'program_level' => $row['program_level'],
+                'paid_up' => $row['paid_up'],
+                'paid_up_description' => $row['paid_up_description']
             ];
         }, $results);
     } else {
@@ -182,7 +194,8 @@ try {
                 'program_name' => $row['program_name'],
                 'recruiter_name' => $row['recruiter_name'],
                 'application_date' => $row['application_date'],
-                'status' => $row['application_status']
+                'status' => $row['application_status'],
+                'paid_up' => $row['paid_up']
             ];
         }, $results);
     }

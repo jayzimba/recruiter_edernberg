@@ -268,9 +268,10 @@ checkAuth(['lead_recruiter']);
         });
 
         function loadRecruiters() {
-            fetch('../../api/lead_recruiter/get_recruiters.php')
+            fetch('../../api/lead_recruiter/get_recruiters_team.php')
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data);
                     if (data.status) {
                         updateRecruitersList(data.data);
                     } else {

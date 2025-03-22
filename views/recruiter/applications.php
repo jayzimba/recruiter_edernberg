@@ -160,7 +160,10 @@ checkAuth(['recruiter', 'lead_recruiter']);
                             Application</a>
                         <a class="nav-link active" href="applications.php"><i class="bi bi-list-ul"></i>
                             Applications</a>
-                            <a class="nav-link" href="change-password.php">
+                        <a class="nav-link" href="leads.php">
+                            <i class="bi bi-people"></i> My Leads
+                        </a>
+                        <a class="nav-link" href="change-password.php">
                             <i class="bi bi-key"></i> Change Password
                         </a>
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
@@ -296,6 +299,8 @@ checkAuth(['recruiter', 'lead_recruiter']);
         ? '<span class="badge bg-warning">Under Review</span>' 
         : app.status_name === "Rejected" 
         ? '<span class="badge bg-danger">Rejected</span>' 
+        : app.status_name === "Paid Up"
+        ? '<span class="badge bg-secondary">Paid Up</span>'
         : '<span class="badge bg-success">Approved</span>'
     }
     </td>

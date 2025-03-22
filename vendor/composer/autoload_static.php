@@ -6,40 +6,48 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
 {
+    public static $files = array (
+        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        'db356362850385d08a5381de2638b5fd' => __DIR__ . '/..' . '/mpdf/mpdf/src/functions.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        's' => 
         array (
-            'Svg\\' => 4,
-            'Sabberworm\\CSS\\' => 15,
+            'setasign\\Fpdi\\' => 14,
         ),
         'P' => 
         array (
+            'Psr\\Log\\' => 8,
+            'Psr\\Http\\Message\\' => 17,
             'PhpOffice\\PhpWord\\' => 18,
             'PhpOffice\\Math\\' => 15,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
         array (
-            'Masterminds\\' => 12,
-        ),
-        'F' => 
-        array (
-            'FontLib\\' => 8,
+            'Mpdf\\PsrLogAwareTrait\\' => 22,
+            'Mpdf\\PsrHttpMessageShim\\' => 24,
+            'Mpdf\\' => 5,
         ),
         'D' => 
         array (
-            'Dompdf\\' => 7,
+            'DeepCopy\\' => 9,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Svg\\' => 
+        'setasign\\Fpdi\\' => 
         array (
-            0 => __DIR__ . '/..' . '/dompdf/php-svg-lib/src/Svg',
+            0 => __DIR__ . '/..' . '/setasign/fpdi/src',
         ),
-        'Sabberworm\\CSS\\' => 
+        'Psr\\Log\\' => 
         array (
-            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
+            0 => __DIR__ . '/..' . '/psr/log/src',
+        ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'PhpOffice\\PhpWord\\' => 
         array (
@@ -53,23 +61,26 @@ class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
-        'Masterminds\\' => 
+        'Mpdf\\PsrLogAwareTrait\\' => 
         array (
-            0 => __DIR__ . '/..' . '/masterminds/html5/src',
+            0 => __DIR__ . '/..' . '/mpdf/psr-log-aware-trait/src',
         ),
-        'FontLib\\' => 
+        'Mpdf\\PsrHttpMessageShim\\' => 
         array (
-            0 => __DIR__ . '/..' . '/dompdf/php-font-lib/src/FontLib',
+            0 => __DIR__ . '/..' . '/mpdf/psr-http-message-shim/src',
         ),
-        'Dompdf\\' => 
+        'Mpdf\\' => 
         array (
-            0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
+            0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
+        ),
+        'DeepCopy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Dompdf\\Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

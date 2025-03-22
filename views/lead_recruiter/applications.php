@@ -93,6 +93,7 @@ checkAuth(['lead_recruiter']);
                                 <option value="2">Under Review</option>
                                 <option value="3">Accepted</option>
                                 <option value="4">Rejected</option>
+                                <option value="5">Paid Up</option>
                             </select>
                         </div>
                     </div>

@@ -28,6 +28,9 @@ try {
     if (!isset($data['tuition_fee']) || empty($data['tuition_fee'])) {
         throw new Exception('Tuition fee is required');
     }
+    if (!isset($data['study_mode_id']) || empty($data['study_mode_id'])) {
+        throw new Exception('Study mode is required');
+    }
 
     $database = new Database();
     $conn = $database->getConnection();
@@ -37,15 +40,15 @@ try {
 
     if (empty($data['id'])) {
         // Insert new program
-        $query = "INSERT INTO programs (program_name, school_id, level_id, duration, tuition_fee) 
-                 VALUES (:name, :school_id, :level_id, :duration, :tuition_fee)";
+        $query = "INSERT INTO programs (program_name, school_id, level_id, duration, tuition_fee, study_mode_id) 
+                 VALUES (:name, :school_id, :level_id, :duration, :tuition_fee, :study_mode_id)";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':school_id', $data['school_id']);
         $stmt->bindParam(':level_id', $data['level_id']);
         $stmt->bindParam(':duration', $data['duration']);
         $stmt->bindParam(':tuition_fee', $data['tuition_fee']);
-
+        $stmt->bindParam(':study_mode_id', $data['study_mode_id']);
         if (!$stmt->execute()) {
             throw new Exception('Failed to create program');
         }
@@ -57,13 +60,15 @@ try {
                  SET program_name = :name, 
                      school_id = :school_id, 
                      duration = :duration, 
-                     tuition_fee = :tuition_fee 
+                     tuition_fee = :tuition_fee,
+                     study_mode_id = :study_mode_id
                  WHERE id = :id";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $data['name']);
         $stmt->bindParam(':school_id', $data['school_id']);
         $stmt->bindParam(':duration', $data['duration']);
         $stmt->bindParam(':tuition_fee', $data['tuition_fee']);
+        $stmt->bindParam(':study_mode_id', $data['study_mode_id']);
         $stmt->bindParam(':id', $data['id']);
 
         if (!$stmt->execute()) {

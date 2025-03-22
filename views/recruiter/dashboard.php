@@ -159,9 +159,12 @@ checkAuth(['recruiter', 'lead_recruiter']);
                         <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
                             Application</a>
                         <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
+                        <a class="nav-link" href="leads.php">
+                            <i class="bi bi-people"></i> My Leads
+                        </a>
                         <a class="nav-link" href="change-password.php">
                             <i class="bi bi-key"></i> Change Password
-                        </a>
+                        </a> 
                         <a class="nav-link" href="#" onclick="logout(); return false;"><i
                                 class="bi bi-box-arrow-right"></i> Logout</a>
                     </nav>
@@ -206,6 +209,21 @@ checkAuth(['recruiter', 'lead_recruiter']);
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-2">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Paid up</h6>
+                                        <h3 class="mb-0" id="paidUpApplications">0</h3>
+                                    </div>
+                                    <div class="text-primary">
+                                        <i class="bi bi-cash fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-3">
                         <div class="card stat-card">
                             <div class="card-body">
@@ -221,7 +239,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -236,7 +254,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card stat-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -340,7 +358,8 @@ checkAuth(['recruiter', 'lead_recruiter']);
                 pending: 0,
                 underReview: 0,
                 accepted: 0,
-                rejected: 0
+                rejected: 0,
+                paidUp: 0
             };
 
             fetch(`../../api/applications/get.php${search ? `?search=${encodeURIComponent(search)}` : ''}`)
@@ -365,6 +384,8 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                 statusCounts.pending += 1;
                             } else if (app.status_name === "Rejected") {
                                 statusCounts.rejected += 1;
+                            } else if (app.student_status === 1) {
+                                statusCounts.paidUp += 1;
                             } else {
                                 statusCounts.accepted += 1;
                             }
@@ -376,11 +397,14 @@ checkAuth(['recruiter', 'lead_recruiter']);
                         console.log(`Under Review: ${statusCounts.underReview}`);
                         console.log(`Accepted: ${statusCounts.accepted}`);
                         console.log(`Rejected: ${statusCounts.rejected}`);
+                        console.log(`Paid Up: ${statusCounts.paidUp}`);
 
                         document.getElementById('totalApplications').textContent = statusCounts.total;
                         document.getElementById('pendingReview').textContent = statusCounts.pending;
                         document.getElementById('approved').textContent = statusCounts.accepted;
                         document.getElementById('rejected').textContent = statusCounts.rejected;
+                        document.getElementById('paidUpApplications').textContent = statusCounts.paidUp;
+                        
 
                         // Display applications in the table
                         tableBody.innerHTML = data.data
@@ -396,6 +420,8 @@ checkAuth(['recruiter', 'lead_recruiter']);
                                     ? '<span class="badge bg-warning">Under Review</span>' 
                                     : app.status_name === "Rejected" 
                                     ? '<span class="badge bg-danger">Rejected</span>' 
+                                    : app.status_name === "Paid Up"
+                                    ? '<span class="badge bg-secondary">Paid Up</span>'
                                     : '<span class="badge bg-success">Approved</span>'
                                 }
                             </td>

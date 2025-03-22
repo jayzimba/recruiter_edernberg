@@ -16,9 +16,10 @@ try {
     $database = new Database();
     $conn = $database->getConnection();
 
-    $query = "SELECT p.*, s.school_name as school_name 
+    $query = "SELECT p.*, s.school_name as school_name, sm.mode_name as mode_name
               FROM programs p
               LEFT JOIN schools s ON p.school_id = s.id
+              LEFT JOIN study_modes sm ON p.study_mode_id = sm.id
               ORDER BY p.program_name";
     $stmt = $conn->query($query);
     $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);

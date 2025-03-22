@@ -14,20 +14,20 @@ class DocumentProcessor
     {
         // Set up directories
         $baseDir = dirname(__DIR__);
-        $this->uploadsDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
-                           DIRECTORY_SEPARATOR . 'admissions' . DIRECTORY_SEPARATOR;
-        $this->pdfDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
-                        DIRECTORY_SEPARATOR . 'pdf_admissions' . DIRECTORY_SEPARATOR;
+        $this->uploadsDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' .
+            DIRECTORY_SEPARATOR . 'admissions' . DIRECTORY_SEPARATOR;
+        $this->pdfDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' .
+            DIRECTORY_SEPARATOR . 'pdf_admissions' . DIRECTORY_SEPARATOR;
 
         // Create directories with error handling
         $this->ensureDirectoryExists($this->uploadsDir);
         $this->ensureDirectoryExists($this->pdfDir);
 
         // Set custom temp directory for PhpWord
-        $tempDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . 
-                  DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
+        $tempDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' .
+            DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR;
         $this->ensureDirectoryExists($tempDir);
-        
+
         Settings::setTempDir($tempDir);
         // Configure PDF renderer
         Settings::setPdfRendererPath($baseDir . '/vendor/dompdf/dompdf');
@@ -66,10 +66,10 @@ class DocumentProcessor
         try {
             // Generate DOCX file first
             $docxFile = $this->generateDocxLetter($applicationData);
-            
+
             // Convert to PDF and store it
             $pdfFile = $this->convertToPDF($docxFile, $applicationData);
-            
+
             return [
                 'docx' => $docxFile,
                 'pdf' => $pdfFile
@@ -85,9 +85,9 @@ class DocumentProcessor
         // Select template based on study mode
         $studyMode = strtolower($applicationData['study_mode'] ?? '');
         $isDistance = in_array($studyMode, ['distance', 'online'], true);
-        $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' . 
-                       DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
-                       ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
+        $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' .
+            DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+            ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
 
         error_log("Using template: " . $templatePath);
 
@@ -122,7 +122,7 @@ class DocumentProcessor
             '_',
             strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
         );
-        
+
         $fileName = $safeName . '_' . date('Y_m_d') . '.docx';
         $outputFile = $this->uploadsDir . $fileName;
 
@@ -134,28 +134,23 @@ class DocumentProcessor
 
     private function convertToPDF($docxFile, $applicationData)
     {
-        try {
-            // Load the DOCX file
-            $phpWord = IOFactory::load($docxFile);
+        // Windows path to LibreOffice
+        $libreOfficePath = '"C:\\Program Files\\LibreOffice\\program\\soffice.exe"';
 
-            // Create PDF filename
-            $safeName = preg_replace(
-                '/[^a-zA-Z0-9]/',
-                '_',
-                strtolower($applicationData['firstname'] . '_' . $applicationData['lastname'])
-            );
-            $pdfFileName = $safeName . '_' . date('Y_m_d') . '.pdf';
-            $pdfFile = $this->pdfDir . $pdfFileName;
+        $command = sprintf(
+            '%s --headless --convert-to pdf --outdir "%s" "%s"',
+            $libreOfficePath,
+            $this->pdfDir,
+            $docxFile
+        );
 
-            // Save as PDF
-            $xmlWriter = IOFactory::createWriter($phpWord, 'PDF');
-            $xmlWriter->save($pdfFile);
+        exec($command, $output, $returnVar);
 
-            error_log("Saved PDF to: " . $pdfFile);
-            return $pdfFile;
-        } catch (Exception $e) {
-            error_log("PDF conversion error: " . $e->getMessage());
-            throw new Exception("Failed to convert document to PDF: " . $e->getMessage());
+        if ($returnVar !== 0) {
+            throw new Exception("PDF conversion failed");
         }
+
+        $pdfFile = $this->pdfDir . pathinfo($docxFile, PATHINFO_FILENAME) . '.pdf';
+        return $pdfFile;
     }
 }

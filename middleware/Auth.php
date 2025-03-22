@@ -180,4 +180,12 @@ class Auth
             'message' => 'Logged out successfully'
         ];
     }
+
+    public function getUserId()
+    {
+        if (isset($_SESSION['user_id'])) {
+            return $_SESSION['user_id'];
+        }
+        return null;
+    }
 }

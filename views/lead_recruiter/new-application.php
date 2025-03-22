@@ -337,6 +337,11 @@ echo " -->";
                                         <option value="+216">+216 (Tunisia)</option>
                                         <option value="+213">+213 (Algeria)</option>
                                         <option value="+212">+212 (Morocco)</option>
+                                        <option value="+218">+218 (Libya)</option>
+                                        <option value="+217">+217 (Western Sahara)</option>
+                                        <option value="+215">+215 (Senegal)</option>
+                                        <option value="+214">+214 (Namibia)</option>
+                                        <option value="+265">+265 (Malawi)</option>
                                         <option value="+236">+236 (Central African Republic)</option>
                                         <option value="+235">+235 (Chad)</option>
                                         <option value="+232">+232 (Sierra Leone)</option>
@@ -513,77 +518,246 @@ echo " -->";
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    // Global variables
+    let applicationDataFromLead = null;
+    let programStudyModes = new Map();
+    
     document.addEventListener('DOMContentLoaded', function() {
+        // Check for lead conversion data
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('from_lead')) {
+            try {
+                const storedData = sessionStorage.getItem('applicationData');
+                console.log('Raw stored data:', storedData);
+                
+                if (storedData) {
+                    applicationDataFromLead = JSON.parse(storedData);
+                    console.log('Parsed Application Data:', applicationDataFromLead);
+                    // Log specific fields we need
+                    console.log('School ID:', applicationDataFromLead.schoolId);
+                    console.log('Program ID:', applicationDataFromLead.programId);
+                }
+            } catch (error) {
+                console.error('Error parsing application data:', error);
+                showAlert('warning', 'Error loading lead data');
+            }
+        }
+
         const schoolSelect = document.getElementById('school_id');
         const programSelect = document.getElementById('program_id');
         const intakeSelect = document.getElementById('intake_id');
         const admissionSelect = document.getElementById('admission_id');
 
-        
-        // Load schools
-        fetch('../../api/schools/get.php')
-            .then(response => response.json())
-            .then(data => {
+        // Function to load programs
+        async function loadProgramsForSchool(schoolId, programIdToSelect = null) {
+            if (!schoolId) {
+                console.log('No school ID provided to loadProgramsForSchool');
+                return;
+            }
+
+            console.log('Loading programs for school:', schoolId);
+            console.log('Program to select:', programIdToSelect);
+            
+            programSelect.innerHTML = '<option value="">Select Program</option>';
+            programSelect.disabled = true;
+
+            try {
+                const response = await fetch(`../../api/programs/get.php?school_id=${schoolId}`);
+                const data = await response.json();
+                console.log('Programs data:', data);
+                
+                programSelect.disabled = false;
+                
                 if (data.status && data.data) {
+                    // Clear existing mappings
+                    programStudyModes.clear();
+                    
+                    data.data.forEach(program => {
+                        const option = new Option(program.program_name + ' - (' + program.mode_name + ')', program.id);
+                        programSelect.add(option);
+                        
+                        // Store the study mode ID for each program
+                        programStudyModes.set(program.id.toString(), program.study_mode_id.toString());
+                        console.log(`Mapping program ${program.id} to study mode ${program.study_mode_id}`);
+                    });
+
+                    // Log all mappings
+                    console.log('Program to Study Mode mappings:', Object.fromEntries(programStudyModes));
+
+                    // Add change event listener to program select
+                    programSelect.addEventListener('change', function() {
+                        const studyModeSelect = document.getElementById('study_mode_id');
+                        const selectedProgramId = this.value;
+                        
+                        console.log('Selected program ID:', selectedProgramId);
+                        console.log('Current programStudyModes map:', Object.fromEntries(programStudyModes));
+                        
+                        if (selectedProgramId) {
+                            const studyModeId = programStudyModes.get(selectedProgramId.toString());
+                            console.log('Study mode ID to set:', studyModeId);
+                            
+                            if (studyModeId) {
+                                // Set the value
+                                studyModeSelect.value = studyModeId;
+                                
+                                // Instead of disabling, make it readonly
+                                studyModeSelect.style.backgroundColor = '#e9ecef';
+                                studyModeSelect.style.pointerEvents = 'none';
+                                
+                                // Add a hidden input to ensure the value is submitted
+                                let hiddenInput = document.getElementById('hidden_study_mode');
+                                if (!hiddenInput) {
+                                    hiddenInput = document.createElement('input');
+                                    hiddenInput.type = 'hidden';
+                                    hiddenInput.id = 'hidden_study_mode';
+                                    hiddenInput.name = 'study_mode_id';
+                                    studyModeSelect.parentNode.appendChild(hiddenInput);
+                                }
+                                hiddenInput.value = studyModeId;
+                                
+                                console.log('Set study mode to:', studyModeId);
+                            }
+                        } else {
+                            studyModeSelect.value = '';
+                            studyModeSelect.style.backgroundColor = '';
+                            studyModeSelect.style.pointerEvents = '';
+                            
+                            // Remove hidden input if it exists
+                            const hiddenInput = document.getElementById('hidden_study_mode');
+                            if (hiddenInput) {
+                                hiddenInput.remove();
+                            }
+                        }
+                    });
+
+                    if (programIdToSelect) {
+                        console.log('Setting program select value to:', programIdToSelect);
+                        programSelect.value = programIdToSelect;
+                        
+                        // Trigger change event to set study mode
+                        const event = new Event('change');
+                        programSelect.dispatchEvent(event);
+                        
+                        // Double-check if program was selected
+                        setTimeout(() => {
+                            if (programSelect.value !== programIdToSelect) {
+                                console.warn('Program selection failed, retrying...');
+                                programSelect.value = programIdToSelect;
+                                programSelect.dispatchEvent(event);
+                            }
+                        }, 100);
+                    }
+             
+                }
+            } catch (error) {
+                console.error('Error loading programs:', error);
+                programSelect.disabled = false;
+                showAlert('danger', 'Failed to load programs');
+            }
+        }
+
+        // Load schools and handle selection
+        async function initializeSchoolsAndPrograms() {
+            try {
+                console.log('Initializing schools and programs...');
+                const response = await fetch('../../api/schools/get.php');
+                const data = await response.json();
+                console.log('Schools data:', data);
+                
+                if (data.status && data.data) {
+                    // First populate schools
                     data.data.forEach(school => {
                         const option = new Option(school.school_name, school.id);
                         schoolSelect.add(option);
                     });
-                } else {
-                    showAlert('danger', 'Failed to load schools');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Failed to load schools');
-            });
-
-        // Load programs based on selected school
-        schoolSelect.addEventListener('change', function() {
-            // Clear existing programs
-            programSelect.innerHTML = '<option value="">Select Program</option>';
-
-            if (!this.value) {
-                return;
-            }
-
-            // Show loading state
-            programSelect.disabled = true;
-            const loadingOption = new Option('Loading programs...', '');
-            programSelect.add(loadingOption);
-
-            fetch(`../../api/programs/get.php?school_id=${this.value}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    // Remove loading option
-                    programSelect.remove(programSelect.options.length - 1);
-                    programSelect.disabled = false;
-
-                    if (data.status && data.data) {
-                        if (data.data.length === 0) {
-                            const noPrograms = new Option('No programs available', '');
-                            noPrograms.disabled = true;
-                            programSelect.add(noPrograms);
-                        } else {
-                            data.data.forEach(program => {
-                                const option = new Option(program.program_name, program.id);
-                                programSelect.add(option);
-                            });
+                    
+                    // If we have lead data, set school and program
+                    if (applicationDataFromLead) {
+                        const schoolId = applicationDataFromLead.schoolId;
+                        const programId = applicationDataFromLead.programId;
+                        
+                        console.log('Setting school to:', schoolId);
+                        console.log('Will set program to:', programId);
+                        
+                        if (schoolId) {
+                            schoolSelect.value = schoolId;
+                            console.log('School select value after setting:', schoolSelect.value);
+                            
+                            // Wait a bit before loading programs
+                            setTimeout(async () => {
+                                if (schoolSelect.value === schoolId) {
+                                    await loadProgramsForSchool(schoolId, programId);
+                                } else {
+                                    console.warn('Failed to set school value');
+                                }
+                            }, 100);
                         }
-                    } else {
-                        showAlert('danger', 'Failed to load programs');
                     }
-                })
-                .catch(error => {
-                    programSelect.disabled = false;
-                    programSelect.innerHTML = '<option value="">Select Program</option>';
-                    console.error('Error:', error);
-                    showAlert('danger', 'Failed to load programs');
-                });
+                }
+            } catch (error) {
+                console.error('Error loading schools:', error);
+                showAlert('danger', 'Failed to load schools');
+            }
+        }
+
+        // Handle school change event
+        schoolSelect.addEventListener('change', function() {
+            const selectedSchool = this.value;
+            console.log('School changed to:', selectedSchool);
+            loadProgramsForSchool(selectedSchool);
         });
+
+        // Initialize everything
+        async function initialize() {
+            console.log('Starting initialization...');
+            // First initialize schools and programs
+            await initializeSchoolsAndPrograms();
+
+            // Then populate other form fields if we have lead data
+            if (applicationDataFromLead) {
+                $('#firstname').val(applicationDataFromLead.firstName || '');
+                $('#lastname').val(applicationDataFromLead.lastName || '');
+                $('#email').val(applicationDataFromLead.email || '');
+                
+                // Handle contact number with country code
+                if (applicationDataFromLead.contact) {
+                    const contact = applicationDataFromLead.contact.trim();
+                    const countryCodeMatch = contact.match(/^(\+\d{1,3})/);
+                    
+                    if (countryCodeMatch) {
+                        const countryCode = countryCodeMatch[1];
+                        const number = contact.replace(countryCode, '').replace(/^[0\s]+/, '');
+                        
+                        $('#country_code').val(countryCode);
+                        if ($('#country_code').val() !== countryCode) {
+                            $('#country_code').append(new Option(countryCode, countryCode));
+                            $('#country_code').val(countryCode);
+                        }
+                        
+                        $('#contact').val(number);
+                    } else {
+                        $('#contact').val(contact);
+                    }
+                }
+                
+                $('#nationality').val(applicationDataFromLead.nationality || '');
+
+                // Store the lead ID in a hidden field
+                if (!$('#leadId').length) {
+                    $('#applicationForm').append(`<input type="hidden" id="leadId" name="leadId" value="${applicationDataFromLead.leadId}">`);
+                }
+
+                // Clear the stored data after populating the form
+                sessionStorage.removeItem('applicationData');
+            }
+        }
+
+        // Start initialization
+        initialize();
 
         // Load study modes
         fetch('../../api/study-modes/get.php')
@@ -595,6 +769,9 @@ echo " -->";
                         const option = new Option(mode.mode_name, mode.id);
                         modeSelect.add(option);
                     });
+
+                    // Add this after loading study modes
+                    console.log('Available study mode options:', Array.from(document.getElementById('study_mode_id').options).map(opt => opt.value));
                 } else {
                     showAlert('danger', 'Failed to load study modes');
                 }
@@ -678,13 +855,44 @@ echo " -->";
         document.getElementById('applicationForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
+            const formData = new FormData(this);
+
+            // Ensure study mode value is included
+            const studyModeSelect = document.getElementById('study_mode_id');
+            const hiddenStudyMode = document.getElementById('hidden_study_mode');
+            
+            if (hiddenStudyMode) {
+                formData.set('study_mode_id', hiddenStudyMode.value);
+            } else {
+                formData.set('study_mode_id', studyModeSelect.value);
             }
 
-            const formData = new FormData(this);
+            // Debug log all form values
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            // Validate required fields
+            const requiredFields = [
+                'firstname', 'lastname', 'email', 'contact',
+                'nationality', 'id_number', 'school_id',
+                'program_id', 'study_mode_id', 'intake_id',
+                'admission_id'
+            ];
+
+            let missingFields = [];
+            for (const field of requiredFields) {
+                const value = formData.get(field);
+                if (!value) {
+                    missingFields.push(field);
+                    console.log(`Missing field ${field}`);
+                }
+            }
+
+            if (missingFields.length > 0) {
+                showAlert('danger', `Please fill in all required fields (Missing: ${missingFields.join(', ')})`);
+                return;
+            }
 
             // Validate phone number
             const countryCode = formData.get('country_code');
@@ -704,21 +912,6 @@ echo " -->";
             const fullContact = countryCode + contactNumber.replace(/\s/g, '');
             formData.set('contact', fullContact);
 
-            // Validate required fields
-            const requiredFields = [
-                'firstname', 'lastname', 'email', 'contact',
-                'nationality', 'id_number', 'school_id',
-                'program_id', 'study_mode_id', 'intake_id',
-                'admission_id'
-            ];
-
-            for (const field of requiredFields) {
-                if (!formData.get(field)) {
-                    showAlert('danger', `Please fill in all required fields`);
-                    return;
-                }
-            }
-
             // Check if at least one attachment is present
             const attachmentTypes = formData.getAll('attachment_type[]');
             const attachmentFiles = document.querySelectorAll('input[type="file"]');
@@ -733,41 +926,43 @@ echo " -->";
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = `
-                    <span class="loading-spinner"></span>
-                    Submitting...
-                `;
+                <span class="loading-spinner"></span>
+                Submitting...
+            `;
 
+            // Submit the form
             fetch('../../api/applications/create.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(async response => {
-                    const text = await response.text();
-                    try {
-                        const jsonStr = text.substring(text.indexOf('{'));
-                        return JSON.parse(jsonStr);
-                    } catch (e) {
-                        console.error('Raw response:', text);
-                        throw new Error('Invalid JSON response from server');
-                    }
-                })
-                .then(data => {
-                    if (data.status) {
-                        showAlert('success', 'Application submitted successfully!');
-                        setTimeout(() => {
-                            // window.location.reload();
-                            console.log('Application submitted successfully!', data);
-                        }, 1500);
-                    } else {
-                        showAlert('danger', data.message || 'Failed to submit application');
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error details:', error);
-                    showAlert('danger', 'An error occurred. Please try again.');
-                });
+                method: 'POST',
+                body: formData
+            })
+            .then(async response => {
+                const text = await response.text();
+                try {
+                    const jsonStr = text.substring(text.indexOf('{'));
+                    return JSON.parse(jsonStr);
+                } catch (e) {
+                    console.error('Raw response:', text);
+                    throw new Error('Invalid JSON response from server');
+                }
+            })
+            .then(data => {
+                if (data.status) {
+                    showAlert('success', 'Application submitted successfully!');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('danger', data.message || 'Failed to submit application');
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                showAlert('danger', 'An error occurred. Please try again.');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            });
         });
     });
 

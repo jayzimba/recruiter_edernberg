@@ -116,8 +116,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="d-flex flex-column">
         <h4 class="mb-4 px-3">Lead Recruiter</h4>
         <nav class="nav flex-column">
-            <a class="nav-link <?php echo $current_page === 'dashboard.php' ? 'active' : ''; ?>" 
-               href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
+            <li class="nav-item">
+                <a href="../../views/lead_recruiter/dashboard.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="../../views/lead_recruiter/leads.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'leads.php' ? 'active' : ''; ?>">
+                    <i class="bi bi-people"></i>
+                    <span>Leads</span>
+                </a>
+            </li>
             <a class="nav-link <?php echo $current_page === 'team.php' ? 'active' : ''; ?>" 
                href="team.php"><i class="bi bi-people"></i> Team Management</a>
             <a class="nav-link <?php echo $current_page === 'new-application.php' ? 'active' : ''; ?>" 

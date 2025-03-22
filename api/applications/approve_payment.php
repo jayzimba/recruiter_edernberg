@@ -27,7 +27,8 @@ try {
 
     // Update student status to Paid
     $updateQuery = "UPDATE students 
-                   SET student_status = 1
+                   SET student_status = 1,
+                   application_status = 5
                    WHERE id = :id";
 
     $stmt = $conn->prepare($updateQuery);

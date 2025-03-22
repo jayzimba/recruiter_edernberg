@@ -32,6 +32,19 @@ try {
     $stmt = $conn->query($statusQuery);
     $applicationsByStatus = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Get paid up students
+    $paidUpQuery = "SELECT
+                            'Paid Up' AS status,
+                        COUNT(st.id) AS count
+                    FROM
+                        students st
+                    WHERE
+                        st.student_status = 1
+                    GROUP BY
+                        st.id";
+    $stmt = $conn->query($paidUpQuery);
+    $paidUpStudents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     // Get recent applications
     $recentQuery = "SELECT 
                         s.id,
@@ -48,7 +61,7 @@ try {
                     LEFT JOIN application_status ast ON s.application_status = ast.id
                     LEFT JOIN users u ON s.recruiter_id = u.id
                     ORDER BY s.created_at DESC
-                    LIMIT 5";
+                    LIMIT 10";
     $stmt = $conn->query($recentQuery);
     $recentApplications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -62,8 +75,7 @@ try {
                         LEFT JOIN students s ON u.id = s.recruiter_id
                         WHERE u.role_id = (SELECT id FROM user_roles WHERE name = 'recruiter')
                         GROUP BY u.id
-                        ORDER BY applications_count DESC
-                        LIMIT 5";
+                        ORDER BY applications_count DESC";
     $stmt = $conn->query($recruitersQuery);
     $topRecruiters = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -74,8 +86,7 @@ try {
                     FROM programs p
                     LEFT JOIN students s ON p.id = s.program_id
                     GROUP BY p.id
-                    ORDER BY count DESC
-                    LIMIT 5";
+                    ORDER BY count DESC";
     $stmt = $conn->query($programsQuery);
     $applicationsByProgram = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -86,7 +97,8 @@ try {
             'applications_by_status' => $applicationsByStatus,
             'recent_applications' => $recentApplications,
             'top_recruiters' => $topRecruiters,
-            'applications_by_program' => $applicationsByProgram
+            'applications_by_program' => $applicationsByProgram,
+            'paid_up_students' => $paidUpStudents
         ]
     ]);
 } catch (Exception $e) {

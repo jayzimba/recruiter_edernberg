@@ -214,7 +214,7 @@ checkAuth(['lead_recruiter']);
                 <!-- Filters -->
                 <div class="filter-card">
                     <form id="filterForm" class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Date Range</label>
                             <input type="text" class="form-control" id="dateRange" name="dateRange">
                         </div>
@@ -230,7 +230,7 @@ checkAuth(['lead_recruiter']);
                                 <option value="">All Programs</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Status</label>
                             <select class="form-select" id="status" name="status">
                                 <option value="">All Status</option>
@@ -238,6 +238,15 @@ checkAuth(['lead_recruiter']);
                                 <option value="2">Under Review</option>
                                 <option value="3">Approved</option>
                                 <option value="4">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Paid Up</label>
+                            <select class="form-select" id="paidUp" name="paidUp">
+                                <option value="">All Status</option>
+                                <option value="1">Paid Up</option>
+                                <option value="2">Not Paid</option>
+                               
                             </select>
                         </div>
                         <div class="col-12">
@@ -353,7 +362,8 @@ checkAuth(['lead_recruiter']);
                 dateRange: '',
                 recruiter: '',
                 program: '',
-                status: ''
+                status: '',
+                paidUp: ''
             });
 
             // Handle filter changes
@@ -361,7 +371,7 @@ checkAuth(['lead_recruiter']);
                 applyFilters();
             });
 
-            $('#recruiter, #program, #status').on('change', function() {
+            $('#recruiter, #program, #status, #paidUp').on('change', function() {
                 applyFilters();
             });
 
@@ -377,7 +387,8 @@ checkAuth(['lead_recruiter']);
                 dateRange: $('#dateRange').val(),
                 recruiter: $('#recruiter').val(),
                 program: $('#program').val(),
-                status: $('#status').val()
+                status: $('#status').val(),
+                paidUp: $('#paidUp').val()
             };
             loadReportData(filters);
         }
@@ -433,7 +444,8 @@ checkAuth(['lead_recruiter']);
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Report data:', data); // Debug log
+                console.log('Raw API response:', data);
+                console.log('Sample row data:', data.data[0]);
                 if (data.status) {
                     updateTable(data.data);
                     updateStatistics(data.statistics);
@@ -593,24 +605,22 @@ checkAuth(['lead_recruiter']);
                 if (data.status && Array.isArray(data.data) && data.data.length > 0) {
                     // Transform data for Excel
                     const excelData = data.data.map(row => {
-                        // Create a clean object with all possible fields
                         return {
                             'Student ID': row.student_id_number || '',
-                            'First Name': row.firstname || '',
-                            'Last Name': row.lastname || '',
-                            'Middle Name': row.middlename || '',
+                            'Full Name': row.student_name || '',  
                             'Email': row.email || '',
                             'Contact': row.contact || '',
                             'Nationality': row.nationality || '',
                             'Government ID': row.G_ID || '',
                             'Program': row.program_name || '',
                             'Recruiter': row.recruiter_name || '',
-                            'Application Date': row.application_date ? formatDate(row.application_date) : '',
-                            'Status': getStatusLabel(row.status),
-                            'Commencement Date': row.commencement_date ? formatDate(row.commencement_date) : '',
-                            'Last Updated': row.updated_at ? formatDate(row.updated_at) : '',
-                            'Study Mode': row.mode_name || '',
-                            'Level': row.level || ''
+                            'Application Date': row.created_at ? formatExcelDate(row.created_at) : '',
+                            'Status': getStatusLabel(row.status) || '',
+                            'Commencement Date': row.commencement_date ? formatExcelDate(row.commencement_date) : '',
+                            'Last Updated': row.updated_at ? formatExcelDate(row.updated_at) : '',
+                            'Study Mode': row.study_mode || '',
+                            'Level': row.program_level || '',
+                            'Paid Up': row.paid_up_description || getPaidUpStatus(row.paid_up) || 'Not Paid'
                         };
                     });
 
@@ -620,9 +630,7 @@ checkAuth(['lead_recruiter']);
                     // Set column widths
                     ws['!cols'] = [
                         { wch: 15 },  // Student ID
-                        { wch: 15 },  // First Name
-                        { wch: 15 },  // Last Name
-                        { wch: 15 },  // Middle Name
+                        { wch: 30 },  // Full Name
                         { wch: 30 },  // Email
                         { wch: 15 },  // Contact
                         { wch: 20 },  // Nationality
@@ -633,8 +641,9 @@ checkAuth(['lead_recruiter']);
                         { wch: 15 },  // Status
                         { wch: 20 },  // Commencement Date
                         { wch: 20 },  // Last Updated
-                        { wch: 20 },   // Study Mode
-                        { wch: 20 }   // Level
+                        { wch: 15 },  // Study Mode
+                        { wch: 15 },  // Level
+                        { wch: 15 }   // Paid Up
                     ];
 
                     // Create workbook and append the worksheet
@@ -688,7 +697,8 @@ checkAuth(['lead_recruiter']);
                 '1': 'Pending',
                 '2': 'Under Review',
                 '3': 'Approved',
-                '4': 'Rejected'
+                '4': 'Rejected',
+                '5': 'Paid Up'
             };
             return labels[status] || 'Unknown';
         }
@@ -698,7 +708,8 @@ checkAuth(['lead_recruiter']);
                 '1': 'warning',     // Pending
                 '2': 'info',        // Under Review
                 '3': 'success',     // Approved
-                '4': 'danger'       // Rejected
+                '4': 'danger',      // Rejected
+                '5': 'secondary'      // Paid Up
             };
             return colors[status] || 'secondary';
         }
@@ -748,6 +759,21 @@ checkAuth(['lead_recruiter']);
                 'info': 'bi-info-circle-fill'
             };
             return icons[type] || 'bi-info-circle-fill';
+        }
+
+        function formatExcelDate(dateString) {
+            return moment(dateString).format('MMMM D, YYYY');
+        }
+
+        function getPaidUpStatus(status) {
+            switch(status) {
+                case '1':
+                    return 'Paid';
+                case '2':
+                    return 'Not Paid';
+                default:
+                    return 'Not Paid';
+            }
         }
     </script>
 </body>

@@ -13,34 +13,34 @@ checkAuth(['recruiter', 'lead_recruiter']);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-          :root {
-        --primary-color: #4A90E2;
-        --secondary-color: #6c757d;
-    }
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #6c757d;
+        }
 
-    /* Copy all styles from dashboard.php */
-    /* Add password-specific styles */
-    .password-requirements {
-        font-size: 0.9rem;
-        color: #666;
-        margin-top: 10px;
-    }
+        /* Copy all styles from dashboard.php */
+        /* Add password-specific styles */
+        .password-requirements {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
 
-    .requirement {
-        margin-bottom: 5px;
-    }
+        .requirement {
+            margin-bottom: 5px;
+        }
 
-    .requirement i {
-        margin-right: 5px;
-    }
+        .requirement i {
+            margin-right: 5px;
+        }
 
-    .requirement.valid {
-        color: #198754;
-    }
+        .requirement.valid {
+            color: #198754;
+        }
 
-    .requirement.invalid {
-        color: #dc3545;
-    }
+        .requirement.invalid {
+            color: #dc3545;
+        }
 
 
         .main-content {
@@ -63,6 +63,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
             color: red;
             margin-left: 4px;
         }
+
         .sidebar {
             min-height: 100vh;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -191,32 +192,35 @@ checkAuth(['recruiter', 'lead_recruiter']);
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar">
+            <div class="col-md-3 col-lg-2 sidebar" id="sidebar">
                 <div class="d-flex flex-column">
-                    <h4 class="mb-4 px-3"><?php echo $_SESSION['user_role'] === 'lead_recruiter' ? 'Lead Recruiter' : 'Recruiter'; ?></h4>
+                    <!-- Close Button for Mobile -->
+                    <button class="sidebar-close d-md-none" id="sidebarClose">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <h4 class="mb-4 px-3">Recruitment</h4>
                     <nav class="nav flex-column">
-                        <a class="nav-link" href="dashboard.php">
-                            <i class="bi bi-house-door"></i> Dashboard
+                        <a class="nav-link" href="dashboard.php"><i class="bi bi-house-door"></i> Dashboard</a>
+                        <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New
+                            Application</a>
+                        <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i>
+                            Applications</a>
+                        <a class="nav-link" href="leads.php">
+                            <i class="bi bi-people"></i> My Leads
                         </a>
-                        <?php if ($_SESSION['user_role'] === 'lead_recruiter'): ?>
-                            <a class="nav-link" href="team.php"><i class="bi bi-people"></i> Team Management</a>
-                            <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> All Applications</a>
-                            <a class="nav-link" href="reports.php"><i class="bi bi-graph-up"></i> Reports</a>
-                            <a class="nav-link" href="settings.php"><i class="bi bi-gear"></i> Settings</a>
-                        <?php else: ?>
-                            <a class="nav-link" href="applications.php"><i class="bi bi-list-ul"></i> Applications</a>
-                            <a class="nav-link" href="new-application.php"><i class="bi bi-plus-circle"></i> New Application</a>
-                        <?php endif; ?>
-                        <a class="nav-link active" href="#"><i class="bi bi-key"></i> Change Password</a>
-                        <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                        <a class="nav-link active" href="change-password.php">
+                            <i class="bi bi-key"></i> Change Password
+                        </a>
+                        <a class="nav-link" href="#" onclick="logout(); return false;"><i
+                                class="bi bi-box-arrow-right"></i> Logout</a>
                     </nav>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
-                 <!-- Header -->
-                 <div class="header mb-4 d-flex justify-content-between align-items-center">
+                <!-- Header -->
+                <div class="header mb-4 d-flex justify-content-between align-items-center">
                     <button class="sidebar-toggle d-md-none" id="sidebarToggle">
                         <i class="bi bi-list"></i>
                     </button>
@@ -281,95 +285,94 @@ checkAuth(['recruiter', 'lead_recruiter']);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function checkPasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
+            };
 
-function checkPasswordStrength(password) {
-        const requirements = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /[0-9]/.test(password),
-            special: /[^A-Za-z0-9]/.test(password)
-        };
+            for (const [req, valid] of Object.entries(requirements)) {
+                const element = document.getElementById(req);
+                element.classList.toggle('valid', valid);
+                element.classList.toggle('invalid', !valid);
+                element.querySelector('i').className = valid ? 'bi bi-check-circle' : 'bi bi-x-circle';
+            }
 
-        for (const [req, valid] of Object.entries(requirements)) {
-            const element = document.getElementById(req);
-            element.classList.toggle('valid', valid);
-            element.classList.toggle('invalid', !valid);
-            element.querySelector('i').className = valid ? 'bi bi-check-circle' : 'bi bi-x-circle';
+            return Object.values(requirements).every(Boolean);
         }
 
-        return Object.values(requirements).every(Boolean);
-    }
+        function handlePasswordChange(event) {
+            event.preventDefault();
+            const button = event.target.querySelector('button');
+            const alert = document.getElementById('alertMessage');
 
-    function handlePasswordChange(event) {
-        event.preventDefault();
-        const button = event.target.querySelector('button');
-        const alert = document.getElementById('alertMessage');
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (newPassword !== confirmPassword) {
-            alert.innerHTML = `
+            if (newPassword !== confirmPassword) {
+                alert.innerHTML = `
                     <div class="alert alert-danger">
                         Passwords do not match
                     </div>
                 `;
-            return;
-        }
+                return;
+            }
 
-        if (!checkPasswordStrength(newPassword)) {
-            alert.innerHTML = `
+            if (!checkPasswordStrength(newPassword)) {
+                alert.innerHTML = `
                     <div class="alert alert-danger">
                         Please meet all password requirements
                     </div>
                 `;
-            return;
-        }
+                return;
+            }
 
-        button.disabled = true;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
 
-        fetch('../../api/recruiter/change_password.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    current_password: document.getElementById('currentPassword').value,
-                    new_password: newPassword
+            fetch('../../api/recruiter/change_password.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        current_password: document.getElementById('currentPassword').value,
+                        new_password: newPassword
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    alert.innerHTML = `
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        alert.innerHTML = `
                         <div class="alert alert-success">
                             ${data.message}
                         </div>
                     `;
-                    event.target.reset();
-                } else {
-                    alert.innerHTML = `
+                        event.target.reset();
+                    } else {
+                        alert.innerHTML = `
                         <div class="alert alert-danger">
                             ${data.message}
                         </div>
                     `;
-                }
-                button.disabled = false;
-                button.innerHTML = 'Change Password';
-            })
-            .catch(error => {
-                alert.innerHTML = `
+                    }
+                    button.disabled = false;
+                    button.innerHTML = 'Change Password';
+                })
+                .catch(error => {
+                    alert.innerHTML = `
                     <div class="alert alert-danger">
                         An error occurred. Please try again.
                     </div>
                 `;
-                button.disabled = false;
-                button.innerHTML = 'Change Password';
-            });
-    }
-     
+                    button.disabled = false;
+                    button.innerHTML = 'Change Password';
+                });
+        }
+
         function logout() {
             fetch('../../api/logout.php')
                 .then(response => response.json())
@@ -383,4 +386,4 @@ function checkPasswordStrength(password) {
     </script>
 </body>
 
-</html> 
+</html>

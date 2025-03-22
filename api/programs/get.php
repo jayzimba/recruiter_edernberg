@@ -22,9 +22,9 @@ try {
         throw new Exception('Invalid school ID');
     }
 
-    $query = "SELECT id, program_name FROM programs WHERE
-               school_id = :school_id 
-              ORDER BY program_name";
+    $query = "SELECT p.id, p.program_name, sm.mode_name, sm.id as study_mode_id FROM programs as p LEFT JOIN study_modes as sm on p.study_mode_id = sm.id
+               WHERE p.school_id = :school_id 
+              ORDER BY p.program_name";
 
     $stmt = $conn->prepare($query);
     $stmt->bindParam(':school_id', $school_id);

@@ -3,35 +3,50 @@ header('Content-Type: application/json');
 require_once '../../middleware/Auth.php';
 require_once '../../config/database.php';
 
-$auth = new Auth();
-if (!$auth->isAuthenticated()) {
-    echo json_encode([
-        'status' => false,
-        'message' => 'Unauthorized access'
-    ]);
-    exit;
-}
-
 try {
+    // Check authentication
+    $auth = new Auth();
+    if (!$auth->isAuthenticated()) {
+        throw new Exception('Unauthorized access');
+    }
+
+    // Get the current user's ID
+    $currentUserId = $auth->getUserId();
+
+    // Initialize database connection
     $database = new Database();
     $conn = $database->getConnection();
 
-    $query = "SELECT id, firstname, lastname, email, nrc_number, status 
-              FROM users 
-              WHERE role_id = (SELECT id FROM user_roles WHERE name = 'recruiter')
-              ORDER BY firstname, lastname";
+    // Get recruiters (users with recruiter role) excluding current user
+    $stmt = $conn->prepare("
+        SELECT 
+            u.id,
+            CONCAT(u.firstname, ' ', u.lastname) AS name,
+            u.email,
+            u.firstname,
+            u.lastname
+        FROM 
+            users u
+        LEFT JOIN 
+            user_roles ur ON u.id = ur.id
+        WHERE 
+            u.status = 1 
+            AND u.id != ?
+        ORDER BY 
+            name ASC
+    ");
     
-    $stmt = $conn->query($query);
+    $stmt->execute([$currentUserId]);
     $recruiters = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         'status' => true,
         'data' => $recruiters
     ]);
+
 } catch (Exception $e) {
-    error_log("Error fetching recruiters: " . $e->getMessage());
     echo json_encode([
         'status' => false,
-        'message' => 'Failed to fetch recruiters'
+        'message' => $e->getMessage()
     ]);
 } 

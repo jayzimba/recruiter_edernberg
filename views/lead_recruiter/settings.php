@@ -164,6 +164,7 @@ checkAuth(['lead_recruiter']);
                                     <thead>
                                         <tr>
                                             <th>Program Name</th>
+                                            <th>Study Mode</th>
                                             <th>School</th>
                                             <th>Duration</th>
                                             <th>Tuition Fee</th>
@@ -237,6 +238,12 @@ checkAuth(['lead_recruiter']);
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label for="programStudyMode" class="form-label required">Study Mode</label>
+                            <select class="form-select" id="programStudyMode" required>
+                                <option value="">Select Study Mode</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="programDuration" class="form-label required">Duration (years)</label>
                             <input type="number" class="form-control" id="programDuration" required min="1">
                         </div>
@@ -260,6 +267,7 @@ checkAuth(['lead_recruiter']);
         loadSchools();
         loadPrograms();
         loadLevels();
+        loadStudyModes();
     });
 
     // Schools Functions
@@ -435,6 +443,22 @@ checkAuth(['lead_recruiter']);
             .catch(error => console.error('Error:', error));
     }
 
+    function loadStudyModes() {
+        fetch('../../api/settings/get_study_modes.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    //load the study modes into the study mode dropdown
+                    const studyModeSelect = document.getElementById('programStudyMode');
+                    studyModeSelect.innerHTML = '<option value="">Select Study Mode</option>' +
+                        data.data.map(studyMode => `<option value="${studyMode.id}">${studyMode.mode_name}</option>`).join('');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    
+
     function updateProgramsTable(programs) {
         const tbody = document.getElementById('programsTable');
         if (!programs.length) {
@@ -448,6 +472,7 @@ checkAuth(['lead_recruiter']);
                 program => `
         <tr>
             <td>${program.program_name}</td>
+            <td>${program.mode_name}</td>   
             <td>${program.school_name}</td>
             <td>${program.duration} Years</td>
             <td>${formatCurrency (program.tuition_fee)}</td>
@@ -476,6 +501,7 @@ checkAuth(['lead_recruiter']);
             document.getElementById('programLevel').value = program.level_id;
             document.getElementById('programDuration').value = program.duration;
             document.getElementById('programFee').value = program.tuition_fee;
+            document.getElementById('programStudyMode').value = program.study_mode_id;
         } else {
             document.getElementById('programId').value = '';
         }
@@ -508,6 +534,7 @@ checkAuth(['lead_recruiter']);
             level_id: document.getElementById('programLevel').value,
             duration: document.getElementById('programDuration').value,
             tuition_fee: document.getElementById('programFee').value,
+            study_mode_id: document.getElementById('programStudyMode').value,
         };
 
         fetch('../../api/settings/save_program.php', {

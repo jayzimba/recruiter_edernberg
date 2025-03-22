@@ -77,17 +77,23 @@ checkAuth(['lead_recruiter']);
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <div class="stats-card">
+                            <h5>Total Paid Up</h5>
+                            <div class="stats-number" id="totalPaidUp">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <div class="stats-card">
                             <h5>Pending Review</h5>
                             <div class="stats-number" id="pendingApplications">-</div>
                         </div>
                     </div>
-                    <div class="col-md-6 col-lg-3">
+                    <div class="col-md-6 col-lg-2">
                         <div class="stats-card">
                             <h5>Approved</h5>
                             <div class="stats-number" id="approvedApplications">-</div>
                         </div>
                     </div>
-                    <div class="col-md-6 col-lg-3">
+                    <div class="col-md-6 col-lg-2">
                         <div class="stats-card">
                             <h5>Rejected</h5>
                             <div class="stats-number" id="rejectedApplications">-</div>
@@ -194,9 +200,16 @@ checkAuth(['lead_recruiter']);
                 return acc;
             }, {});
 
+            // Update status paid up
+            const paidUpMap = data.paid_up_students.reduce((acc, curr) => {
+                acc[curr.status.toLowerCase()] = curr.count;
+                return acc;
+            }, {});
+
             document.getElementById('pendingApplications').textContent = statusMap['pending'] || 0;
             document.getElementById('approvedApplications').textContent = statusMap['approved'] || 0;
             document.getElementById('rejectedApplications').textContent = statusMap['rejected'] || 0;
+            document.getElementById('totalPaidUp').textContent = paidUpMap['paid up'] || 0;
 
             // Update recent applications table with clickable rows
             const recentHtml = data.recent_applications.map((app, index) => `
