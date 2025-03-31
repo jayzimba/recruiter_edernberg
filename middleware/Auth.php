@@ -47,11 +47,12 @@ class Auth
                         'message' => 'User account is inactive'
                     ];
                 }
+                $_SESSION['default_password'] = $password === 'Password@2025';
+
                 // Create session
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['user_role'] = $row['role_name'];
                 $_SESSION['user_email'] = $row['email'];
-    
 
                 // Create JWT token
                 $token = $this->generateJWT($row);

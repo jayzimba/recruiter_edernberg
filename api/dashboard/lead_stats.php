@@ -81,10 +81,11 @@ try {
 
     // Get applications by program
     $programsQuery = "SELECT 
-                        p.program_name,
+                        CONCAT(p.program_name, ' - ', sm.mode_name) as program_name,
                         COUNT(s.id) as count
                     FROM programs p
                     LEFT JOIN students s ON p.id = s.program_id
+                    LEFT JOIN study_modes sm ON p.study_mode_id = sm.id
                     GROUP BY p.id
                     ORDER BY count DESC";
     $stmt = $conn->query($programsQuery);

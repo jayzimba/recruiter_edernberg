@@ -46,265 +46,265 @@ echo " -->";
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="../../assets/css/style.css" rel="stylesheet">
     <style>
-        /* Revert sidebar styles */
-        .sidebar {
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            padding-top: 1rem;
-        }
+    /* Revert sidebar styles */
+    .sidebar {
+        min-height: 100vh;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        padding-top: 1rem;
+    }
 
-        .nav-link {
-            padding: 0.8rem 1rem;
-            color: #6c757d;
-            border-radius: 5px;
-            margin: 0.2rem 0;
-        }
+    .nav-link {
+        padding: 0.8rem 1rem;
+        color: #6c757d;
+        border-radius: 5px;
+        margin: 0.2rem 0;
+    }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+    .nav-link:hover,
+    .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
 
-        .nav-link i {
-            margin-right: 10px;
-        }
+    .nav-link i {
+        margin-right: 10px;
+    }
 
-        .header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-        }
+    .header {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+    }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
 
 
-        /* Main content adjustment */
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
+    /* Main content adjustment */
+    .main-content {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem;
+    }
+
+    /* Form card styles */
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+        .form-card {
             padding: 2rem;
         }
+    }
 
-        /* Form card styles */
-        .form-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
+    /* Section styles */
+    .section-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
 
-        @media (min-width: 768px) {
-            .form-card {
-                padding: 2rem;
-            }
-        }
+    /* Form controls */
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 0.625rem 0.75rem;
+        transition: all 0.2s ease-in-out;
+    }
 
-        /* Section styles */
-        .section-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
 
-        /* Form controls */
-        .form-control,
-        .form-select {
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            padding: 0.625rem 0.75rem;
-            transition: all 0.2s ease-in-out;
-        }
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
 
-        .form-control:focus,
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
-        }
+    .input-group .form-control {
+        border-left: none;
+    }
 
-        .input-group {
-            border-radius: 8px;
-            overflow: hidden;
-        }
+    .input-group .form-select {
+        border-right: none;
+    }
 
-        .input-group .form-control {
-            border-left: none;
-        }
+    /* Required field indicator */
+    .required::after {
+        content: "*";
+        color: #dc3545;
+        margin-left: 4px;
+        font-weight: bold;
+    }
 
-        .input-group .form-select {
-            border-right: none;
-        }
+    /* Card styles */
+    .card {
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, .125);
+        transition: all 0.3s ease;
+    }
 
-        /* Required field indicator */
-        .required::after {
-            content: "*";
-            color: #dc3545;
-            margin-left: 4px;
-            font-weight: bold;
-        }
+    .card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-        /* Card styles */
-        .card {
-            border-radius: 10px;
-            border: 1px solid rgba(0, 0, 0, .125);
-            transition: all 0.3s ease;
-        }
+    /* Attachment section */
+    .attachment-item .btn-danger {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
 
-        .card:hover {
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
+    .attachment-item .btn-danger:hover {
+        transform: scale(1.1);
+    }
 
-        /* Attachment section */
-        .attachment-item .btn-danger {
-            width: 38px;
-            height: 38px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
+    /* Submit button */
+    .submit-btn {
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
 
-        .attachment-item .btn-danger:hover {
-            transform: scale(1.1);
-        }
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-        /* Submit button */
-        .submit-btn {
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Alert styles */
-        .alert {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+    /* Alert styles */
+    .alert {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
 
-        /* Sidebar toggle button */
-        .sidebar-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+    /* Sidebar toggle button */
+    .sidebar-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
 
-        /* Close button for sidebar on mobile */
+    /* Close button for sidebar on mobile */
+    .sidebar-close {
+        display: none;
+        /* Hidden by default */
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #6c757d;
+        cursor: pointer;
+        z-index: 1001;
+        /* Ensure it's above the sidebar */
+    }
+
+    @media (max-width: 767.98px) {
         .sidebar-close {
-            display: none;
-            /* Hidden by default */
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #6c757d;
-            cursor: pointer;
-            z-index: 1001;
-            /* Ensure it's above the sidebar */
+            display: block;
+            /* Show on mobile */
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .sidebar-toggle {
+            display: block;
         }
 
-        @media (max-width: 767.98px) {
-            .sidebar-close {
-                display: block;
-                /* Show on mobile */
-            }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transform: translateX(-100%);
         }
 
-        @media (max-width: 767.98px) {
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 1000;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
+        .sidebar.show {
+            transform: translateX(0);
         }
 
-        /* Responsive grid adjustments */
-        @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+        }
+    }
 
-            .col-md-4,
-            .col-md-6 {
-                margin-bottom: 1rem;
-            }
+    /* Responsive grid adjustments */
+    @media (max-width: 768px) {
 
-            .attachment-item .row {
-                margin-bottom: 1rem;
-            }
-
-            .attachment-item .btn-danger {
-                margin-top: 1rem;
-            }
+        .col-md-4,
+        .col-md-6 {
+            margin-bottom: 1rem;
         }
 
-        /* Loading spinner */
-        .loading-spinner {
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 0.5rem;
+        .attachment-item .row {
+            margin-bottom: 1rem;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+        .attachment-item .btn-danger {
+            margin-top: 1rem;
         }
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
     </style>
 </head>
 
@@ -611,83 +611,83 @@ echo " -->";
         let programStudyModes = new Map();
 
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const schoolSelect = document.getElementById('school_id');
-            const programSelect = document.getElementById('program_id');
-            const intakeSelect = document.getElementById('intake_id');
-            const admissionSelect = document.getElementById('admission_id');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
+    document.addEventListener('DOMContentLoaded', function() {
+        const schoolSelect = document.getElementById('school_id');
+        const programSelect = document.getElementById('program_id');
+        const intakeSelect = document.getElementById('intake_id');
+        const admissionSelect = document.getElementById('admission_id');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
-            // Toggle sidebar on button click
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
+        // Toggle sidebar on button click
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
 
-            // Close sidebar when clicking the close button
-            sidebarClose.addEventListener('click', () => {
+        // Close sidebar when clicking the close button
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
                 sidebar.classList.remove('show');
+            }
+        });
+        // Load schools
+        fetch('../../api/schools/get.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.data) {
+                    data.data.forEach(school => {
+                        const option = new Option(school.school_name, school.id);
+                        schoolSelect.add(option);
+                    });
+                } else {
+                    showAlert('danger', 'Failed to load schools');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Failed to load schools');
             });
 
-            // Close sidebar when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
-                }
-            });
-            // Load schools
-            fetch('../../api/schools/get.php')
+        // Load programs based on selected school
+        schoolSelect.addEventListener('change', function() {
+            // Clear existing programs
+            programSelect.innerHTML = '<option value="">Select Program</option>';
+
+            if (!this.value) {
+                return;
+            }
+
+            // Show loading state
+            programSelect.disabled = true;
+            const loadingOption = new Option('Loading programs...', '');
+            programSelect.add(loadingOption);
+
+            fetch(`../../api/programs/get.php?school_id=${this.value}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data);
+                    // Remove loading option
+                    programSelect.remove(programSelect.options.length - 1);
+                    programSelect.disabled = false;
+
                     if (data.status && data.data) {
-                        data.data.forEach(school => {
-                            const option = new Option(school.school_name, school.id);
-                            schoolSelect.add(option);
-                        });
-                    } else {
-                        showAlert('danger', 'Failed to load schools');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Failed to load schools');
-                });
-
-            // Load programs based on selected school
-            schoolSelect.addEventListener('change', function() {
-                // Clear existing programs
-                programSelect.innerHTML = '<option value="">Select Program</option>';
-
-                if (!this.value) {
-                    return;
-                }
-
-                // Show loading state
-                programSelect.disabled = true;
-                const loadingOption = new Option('Loading programs...', '');
-                programSelect.add(loadingOption);
-
-                fetch(`../../api/programs/get.php?school_id=${this.value}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        // Remove loading option
-                        programSelect.remove(programSelect.options.length - 1);
-                        programSelect.disabled = false;
-
-                        if (data.status && data.data) {
 
                             // Clear existing mappings
                             programStudyModes.clear();
 
-                            if (data.data.length === 0) {
-                                const noPrograms = new Option('No programs available', '');
-                                noPrograms.disabled = true;
-                                programSelect.add(noPrograms);
-                            } else {
-                                data.data.forEach(program => {
+                        if (data.data.length === 0) {
+                            const noPrograms = new Option('No programs available', '');
+                            noPrograms.disabled = true;
+                            programSelect.add(noPrograms);
+                        } else {
+                            data.data.forEach(program => {
                                     const option = new Option(program.program_name + ' - (' + program.mode_name + ')', program.id);
-                                    programSelect.add(option);
+                                programSelect.add(option);
 
                                     // Store the study mode ID for each program
                                     programStudyModes.set(program.id.toString(), program.study_mode_id.toString());
@@ -745,116 +745,116 @@ echo " -->";
                                 });
 
 
-                            }
-                        } else {
-                            showAlert('danger', 'Failed to load programs');
                         }
-                    })
-                    .catch(error => {
-                        programSelect.disabled = false;
-                        programSelect.innerHTML = '<option value="">Select Program</option>';
-                        console.error('Error:', error);
+                    } else {
                         showAlert('danger', 'Failed to load programs');
-                    });
-            });
+                    }
+                })
+                .catch(error => {
+                    programSelect.disabled = false;
+                    programSelect.innerHTML = '<option value="">Select Program</option>';
+                    console.error('Error:', error);
+                    showAlert('danger', 'Failed to load programs');
+                });
+        });
 
-            // Load study modes
-            fetch('../../api/study-modes/get.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status && data.data) {
-                        const modeSelect = document.getElementById('study_mode_id');
-                        data.data.forEach(mode => {
-                            const option = new Option(mode.mode_name, mode.id);
-                            modeSelect.add(option);
-                        });
+        // Load study modes
+        fetch('../../api/study-modes/get.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status && data.data) {
+                    const modeSelect = document.getElementById('study_mode_id');
+                    data.data.forEach(mode => {
+                        const option = new Option(mode.mode_name, mode.id);
+                        modeSelect.add(option);
+                    });
                         // Debug log
                         console.log('Loaded study modes:', Array.from(modeSelect.options).map(opt => ({
                             value: opt.value,
                             text: opt.text
                         })));
-                    } else {
-                        showAlert('danger', 'Failed to load study modes');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                } else {
                     showAlert('danger', 'Failed to load study modes');
-                });
-
-            // Load intakes
-            fetch('../../api/intakes/get.php')
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-
-                    if (data.status && data.data) {
-                        data.data.forEach(intake => {
-                            const option = new Option(intake.intake_description, intake.id);
-                            intakeSelect.add(option);
-                        });
-                    } else {
-                        showAlert('danger', 'Failed to load intakes');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Failed to load intakes');
-                });
-
-            // Load admission types
-            fetch('../../api/admission-types/get.php')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Admission types:', data);
-                    if (data.status && data.data) {
-                        data.data.forEach(admission => {
-                            const option = new Option(admission.admission_description, admission.id);
-                            admissionSelect.add(option);
-                        });
-                    } else {
-                        showAlert('danger', 'Failed to load admission types');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Failed to load admission types');
-                });
-
-            // Add this function to validate phone numbers
-            function validatePhoneNumber(countryCode, number) {
-                // Remove all spaces and non-digit characters except +
-                const cleanNumber = number.replace(/[^\d]/g, '');
-
-                // Basic validation rules for different country codes
-                const validations = {
-                    '+260': {
-                        length: 9
-                    }, // Zambia
-                    '+263': {
-                        length: 9
-                    }, // Zimbabwe
-                    '+27': {
-                        length: 9
-                    }, // South Africa
-                    '+267': {
-                        length: 8
-                    }, // Botswana
-                    // Add more country-specific validations as needed
-                };
-
-                const validation = validations[countryCode];
-                if (validation) {
-                    return cleanNumber.length === validation.length;
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Failed to load study modes');
+            });
 
-                // Default validation if country code is not in the list
-                return cleanNumber.length >= 8 && cleanNumber.length <= 15;
+        // Load intakes
+        fetch('../../api/intakes/get.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                if (data.status && data.data) {
+                    data.data.forEach(intake => {
+                        const option = new Option(intake.intake_description, intake.id);
+                        intakeSelect.add(option);
+                    });
+                } else {
+                    showAlert('danger', 'Failed to load intakes');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Failed to load intakes');
+            });
+
+        // Load admission types
+        fetch('../../api/admission-types/get.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Admission types:', data);
+                if (data.status && data.data) {
+                    data.data.forEach(admission => {
+                        const option = new Option(admission.admission_description, admission.id);
+                        admissionSelect.add(option);
+                    });
+                } else {
+                    showAlert('danger', 'Failed to load admission types');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Failed to load admission types');
+            });
+
+        // Add this function to validate phone numbers
+        function validatePhoneNumber(countryCode, number) {
+            // Remove all spaces and non-digit characters except +
+            const cleanNumber = number.replace(/[^\d]/g, '');
+
+            // Basic validation rules for different country codes
+            const validations = {
+                '+260': {
+                    length: 9
+                }, // Zambia
+                '+263': {
+                    length: 9
+                }, // Zimbabwe
+                '+27': {
+                    length: 9
+                }, // South Africa
+                '+267': {
+                    length: 8
+                }, // Botswana
+                // Add more country-specific validations as needed
+            };
+
+            const validation = validations[countryCode];
+            if (validation) {
+                return cleanNumber.length === validation.length;
             }
 
-            // Update form submission to include phone validation
-            document.getElementById('applicationForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+            // Default validation if country code is not in the list
+            return cleanNumber.length >= 8 && cleanNumber.length <= 15;
+        }
+
+        // Update form submission to include phone validation
+        document.getElementById('applicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
 
                 const formData = new FormData(this);
 
@@ -885,111 +885,111 @@ echo " -->";
                     return;
                 }
 
-                // Validate phone number
-                const countryCode = formData.get('country_code');
-                const contactNumber = formData.get('contact');
+            // Validate phone number
+            const countryCode = formData.get('country_code');
+            const contactNumber = formData.get('contact');
 
-                if (!countryCode) {
-                    showAlert('danger', 'Please select a country code');
-                    return;
-                }
+            if (!countryCode) {
+                showAlert('danger', 'Please select a country code');
+                return;
+            }
 
-                if (!validatePhoneNumber(countryCode, contactNumber)) {
-                    showAlert('danger', 'Please enter a valid phone number for the selected country');
-                    return;
-                }
+            if (!validatePhoneNumber(countryCode, contactNumber)) {
+                showAlert('danger', 'Please enter a valid phone number for the selected country');
+                return;
+            }
 
-                // Combine country code and contact number
-                const fullContact = countryCode + contactNumber.replace(/\s/g, '');
-                formData.set('contact', fullContact);
+            // Combine country code and contact number
+            const fullContact = countryCode + contactNumber.replace(/\s/g, '');
+            formData.set('contact', fullContact);
 
-                // Check if at least one attachment is present
-                const attachmentTypes = formData.getAll('attachment_type[]');
-                const attachmentFiles = document.querySelectorAll('input[type="file"]');
+            // Check if at least one attachment is present
+            const attachmentTypes = formData.getAll('attachment_type[]');
+            const attachmentFiles = document.querySelectorAll('input[type="file"]');
 
-                if (attachmentTypes.length === 0 || !attachmentFiles[0].files[0]) {
-                    showAlert('danger', 'Please add at least one document attachment');
-                    return;
-                }
+            if (attachmentTypes.length === 0 || !attachmentFiles[0].files[0]) {
+                showAlert('danger', 'Please add at least one document attachment');
+                return;
+            }
 
-                // Show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
                     <span class="loading-spinner"></span>
                     Submitting...
                 `;
 
-                fetch('../../api/applications/create.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(async response => {
-                        const text = await response.text();
-                        try {
-                            const jsonStr = text.substring(text.indexOf('{'));
-                            return JSON.parse(jsonStr);
-                        } catch (e) {
-                            console.error('Raw response:', text);
-                            throw new Error('Invalid JSON response from server');
-                        }
-                    })
-                    .then(data => {
-                        if (data.status) {
-                            showAlert('success', 'Application submitted successfully!');
-                            setTimeout(() => {
+            fetch('../../api/applications/create.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(async response => {
+                    const text = await response.text();
+                    try {
+                        const jsonStr = text.substring(text.indexOf('{'));
+                        return JSON.parse(jsonStr);
+                    } catch (e) {
+                        console.error('Raw response:', text);
+                        throw new Error('Invalid JSON response from server');
+                    }
+                })
+                .then(data => {
+                    if (data.status) {
+                        showAlert('success', 'Application submitted successfully!');
+                        setTimeout(() => {
                                 window.location.reload();
-                                console.log('Application submitted successfully!', data);
-                            }, 1500);
-                        } else {
-                            showAlert('danger', data.message || 'Failed to submit application');
-                            submitBtn.innerHTML = originalBtnText;
-                            submitBtn.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error details:', error);
-                        showAlert('danger', 'An error occurred. Please try again.');
-                    });
-            });
+                            console.log('Application submitted successfully!', data);
+                        }, 1500);
+                    } else {
+                        showAlert('danger', data.message || 'Failed to submit application');
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error details:', error);
+                    showAlert('danger', 'An error occurred. Please try again.');
+                });
         });
+    });
 
-        function showAlert(type, message) {
-            const alertContainer = document.getElementById('alert-container');
-            alertContainer.innerHTML = `
+    function showAlert(type, message) {
+        const alertContainer = document.getElementById('alert-container');
+        alertContainer.innerHTML = `
                 <div class="alert alert-${type} alert-dismissible fade show" role="alert">
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             `;
-        }
+    }
 
-        function logout() {
-            fetch('../../api/logout.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        localStorage.removeItem('jwt_token');
-                        window.location.href = '../login.php';
-                    }
-                })
-                .catch(error => {
-                    console.error('Logout failed:', error);
-                });
-        }
+    function logout() {
+        fetch('../../api/logout.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    localStorage.removeItem('jwt_token');
+                    window.location.href = '../login.php';
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+    }
 
-        let attachmentCount = 1;
+    let attachmentCount = 1;
 
-        function addAttachment() {
-            attachmentCount++;
-            1
-            const container = document.getElementById('attachments-container');
-            const newAttachment = document.createElement('div');
-            newAttachment.className = 'attachment-item mb-3';
-            newAttachment.dataset.attachmentId = attachmentCount;
+    function addAttachment() {
+        attachmentCount++;
+        1
+        const container = document.getElementById('attachments-container');
+        const newAttachment = document.createElement('div');
+        newAttachment.className = 'attachment-item mb-3';
+        newAttachment.dataset.attachmentId = attachmentCount;
 
-            newAttachment.innerHTML = `
+        newAttachment.innerHTML = `
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -1019,27 +1019,27 @@ echo " -->";
                 </div>
             `;
 
-            container.appendChild(newAttachment);
-            updateRemoveButtons();
-        }
+        container.appendChild(newAttachment);
+        updateRemoveButtons();
+    }
 
-        function removeAttachment(button) {
-            const attachmentItem = button.closest('.attachment-item');
-            attachmentItem.remove();
-            updateRemoveButtons();
-        }
+    function removeAttachment(button) {
+        const attachmentItem = button.closest('.attachment-item');
+        attachmentItem.remove();
+        updateRemoveButtons();
+    }
 
-        function updateRemoveButtons() {
-            const attachments = document.querySelectorAll('.attachment-item');
-            attachments.forEach(attachment => {
-                const removeButton = attachment.querySelector('.btn-danger');
-                if (attachments.length === 1) {
-                    removeButton.style.display = 'none';
-                } else {
-                    removeButton.style.display = 'flex';
-                }
-            });
-        }
+    function updateRemoveButtons() {
+        const attachments = document.querySelectorAll('.attachment-item');
+        attachments.forEach(attachment => {
+            const removeButton = attachment.querySelector('.btn-danger');
+            if (attachments.length === 1) {
+                removeButton.style.display = 'none';
+            } else {
+                removeButton.style.display = 'flex';
+            }
+        });
+    }
     </script>
 </body>
 

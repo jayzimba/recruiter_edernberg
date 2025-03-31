@@ -9,6 +9,7 @@ class DocumentProcessor
 {
     private $uploadsDir;
     private $pdfDir;
+    private $libreOfficePath;
 
     public function __construct()
     {
@@ -18,6 +19,9 @@ class DocumentProcessor
             DIRECTORY_SEPARATOR . 'admissions' . DIRECTORY_SEPARATOR;
         $this->pdfDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' .
             DIRECTORY_SEPARATOR . 'pdf_admissions' . DIRECTORY_SEPARATOR;
+
+        // Update LibreOffice path to match sample.php
+        $this->libreOfficePath = 'C:\\Program Files\\LibreOffice\\program\\soffice.exe';
 
         // Create directories with error handling
         $this->ensureDirectoryExists($this->uploadsDir);
@@ -32,6 +36,11 @@ class DocumentProcessor
         // Configure PDF renderer
         Settings::setPdfRendererPath($baseDir . '/vendor/dompdf/dompdf');
         Settings::setPdfRendererName(Settings::PDF_RENDERER_DOMPDF);
+
+        // Add this to your constructor after creating directories
+        foreach ([$this->uploadsDir, $this->pdfDir] as $dir) {
+            chmod($dir, 0777);
+        }
     }
 
     private function ensureDirectoryExists($dir)
@@ -66,10 +75,11 @@ class DocumentProcessor
         try {
             // Generate DOCX file first
             $docxFile = $this->generateDocxLetter($applicationData);
+            
+            // Convert to PDF using LibreOffice
+            $pdfFile = $this->convertToPDF($docxFile);
 
-            // Convert to PDF and store it
-            $pdfFile = $this->convertToPDF($docxFile, $applicationData);
-
+            // Return both file paths
             return [
                 'docx' => $docxFile,
                 'pdf' => $pdfFile
@@ -85,10 +95,29 @@ class DocumentProcessor
         // Select template based on study mode
         $studyMode = strtolower($applicationData['study_mode'] ?? '');
         $isDistance = in_array($studyMode, ['distance', 'online'], true);
-        $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' .
-            DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
-            ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
 
+        //check if $applicationData['level'] is Masters to use masters template
+        $isMasters = $applicationData['level'] === 'Masters';
+
+
+        if($isMasters){
+            $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' .
+            DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+            'masters_admission.docx';
+        }else{
+            //go further to check if the program is either  "Diploma in Clinical Medicine" or "Diploma in Registered Nursing" use this templtate Nursing_clinical_medicine_admission.docx   
+            if($applicationData['program_name'] === 'Diploma in Clinical Medicine' || $applicationData['program_name'] === 'Diploma in Registered Nursing'){
+                $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' .
+                DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+                'Nursing_clinical_medicine_admission.docx';
+            }else{
+                $templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'assets' .
+                DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR .
+                ($isDistance ? 'distance_admission.docx' : 'fulltime_admission.docx');
+            }
+        }
+
+        
         error_log("Using template: " . $templatePath);
 
         if (!file_exists($templatePath)) {
@@ -116,6 +145,7 @@ class DocumentProcessor
         $templateProcessor->setValue('date_of_commencement', $applicationData['intake'] ?? '');
         $templateProcessor->setValue('level', $applicationData['level'] ?? '');
         $templateProcessor->setValue('duration', $applicationData['duration'] ?? '');
+        
         // Create safe filename
         $safeName = preg_replace(
             '/[^a-zA-Z0-9]/',
@@ -128,29 +158,132 @@ class DocumentProcessor
 
         error_log("Saving DOCX to: " . $outputFile);
         $templateProcessor->saveAs($outputFile);
+        sleep(1); // Wait for file to be fully written
 
         return $outputFile;
     }
 
-    private function convertToPDF($docxFile, $applicationData)
+    private function convertToPDF($docxFile)
     {
-        // Windows path to LibreOffice
-        $libreOfficePath = '"C:\\Program Files\\LibreOffice\\program\\soffice.exe"';
+        try {
+            // Get the directory and filename
+            $pdfDir = $this->pdfDir;
+            $filename = pathinfo($docxFile, PATHINFO_FILENAME);
 
-        $command = sprintf(
-            '%s --headless --convert-to pdf --outdir "%s" "%s"',
-            $libreOfficePath,
-            $this->pdfDir,
-            $docxFile
-        );
+            // Ensure the PDF directory exists and is writable
+            $this->ensureDirectoryExists($pdfDir);
 
-        exec($command, $output, $returnVar);
+            // Verify source file exists
+            if (!file_exists($docxFile)) {
+                throw new Exception("Source DOCX file not found: $docxFile");
+            }
 
-        if ($returnVar !== 0) {
-            throw new Exception("PDF conversion failed");
+            // Define the final PDF file name
+            $pdfFileName = $pdfDir . $filename . '.pdf';
+
+            // Kill any existing LibreOffice processes
+            exec('taskkill /F /IM soffice.exe /T 2>&1', $killOutput, $killReturn);
+            error_log("Kill LibreOffice processes output: " . print_r($killOutput, true));
+
+            // Generate the PDF using LibreOffice - using the same command format as sample.php
+            $libreOfficeCommand = '"C:\\Program Files\\LibreOffice\\program\\soffice.exe" --headless --convert-to pdf ' . 
+                escapeshellarg($docxFile) . ' --outdir ' . escapeshellarg(realpath($pdfDir));
+
+            // Log the command
+            error_log("Attempting PDF conversion with command: " . $libreOfficeCommand);
+            error_log("Source DOCX exists: " . (file_exists($docxFile) ? 'Yes' : 'No'));
+            error_log("Source DOCX size: " . filesize($docxFile) . " bytes");
+
+            // Execute the command
+            exec($libreOfficeCommand . ' 2>&1', $output, $return_var);
+
+            // Log the output
+            error_log("Command output: " . print_r($output, true));
+            error_log("Return code: " . $return_var);
+
+            if ($return_var === 0) {
+                // Get the generated PDF file path
+                $generatedPdfFile = $pdfDir . $filename . '.pdf';
+                
+                // Check if the PDF was created
+                if (!file_exists($generatedPdfFile)) {
+                    throw new Exception("PDF file was not created at expected location: $generatedPdfFile");
+                }
+
+                // Check if the PDF is not empty
+                if (filesize($generatedPdfFile) === 0) {
+                    throw new Exception("PDF file was created but is empty: $generatedPdfFile");
+                }
+
+                // Wait a short time to ensure file is fully written
+                sleep(1);
+
+                return $generatedPdfFile;
+            } else {
+                throw new Exception("LibreOffice conversion failed. Command output: " . implode("\n", $output));
+            }
+        } catch (Exception $e) {
+            error_log("PDF Conversion error: " . $e->getMessage());
+            error_log("Full error details: " . print_r($e, true));
+            throw new Exception("Failed to convert DOCX to PDF: " . $e->getMessage());
         }
+    }
 
-        $pdfFile = $this->pdfDir . pathinfo($docxFile, PATHINFO_FILENAME) . '.pdf';
-        return $pdfFile;
+    public function testLibreOfficeInstallation() {
+        try {
+            $command = $this->libreOfficePath . ' --version';
+            exec($command, $output, $returnVar);
+            
+            if ($returnVar === 0) {
+                return [
+                    'status' => true,
+                    'message' => 'LibreOffice is properly installed',
+                    'version' => $output
+                ];
+            } else {
+                return [
+                    'status' => false,
+                    'message' => 'LibreOffice test failed',
+                    'error' => $output
+                ];
+            }
+        } catch (Exception $e) {
+            return [
+                'status' => false,
+                'message' => 'LibreOffice test threw an exception',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    // Add this helper method to test LibreOffice directly
+    public function testConversion($testFile = null)
+    {
+        try {
+            if (!$testFile) {
+                // Create a simple test DOCX file
+                $testFile = $this->uploadsDir . 'test.docx';
+                $templateProcessor = new TemplateProcessor(dirname(__DIR__) . '/assets/templates/fulltime_admission.docx');
+                $templateProcessor->setValue('test', 'test');
+                $templateProcessor->saveAs($testFile);
+            }
+
+            // Try to convert it
+            $result = $this->convertToPDF($testFile);
+            
+            return [
+                'status' => true,
+                'message' => 'Test conversion successful',
+                'source' => $testFile,
+                'result' => $result
+            ];
+        } catch (Exception $e) {
+            return [
+                'status' => false,
+                'message' => $e->getMessage(),
+                'source' => $testFile ?? 'No test file created',
+                'error' => $e->getTraceAsString()
+            ];
+        }
     }
 }

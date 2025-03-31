@@ -1,140 +1,137 @@
-<?php
-session_start();
-if (isset($_SESSION['student_id'])) {
-    header('Location: dashboard.php');
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal - Login</title>
+    <title>Student Portal | Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            background: #4A90E2;
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
-            padding: 20px;
-        }
-
-        .card-body {
-            padding: 30px;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            padding: 12px;
-        }
-
-        .btn-primary {
-            background: #4A90E2;
-            border: none;
-            padding: 12px;
-            width: 100%;
-        }
-
-        .university-logo {
-            width: 100px;
-            height: auto;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../../assets/css/student-login.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../../assets/icons/edernberg.png">
 </head>
-
 <body>
-    <div class="container">
-        <div class="login-container">
-            <div class="text-center"> <img src="../../assets/icons/edernberg.png" alt="University Recruitment Logo"
-                    class="img-fluid mb-4" style="max-width: 200px;">
-                <h3>Student Portal</h3>
+    <div class="split-container">
+        <div class="left-side">
+            <div class="left-content">
+                <h1>Welcome to Student Portal</h1>
+                <p>Access your academic information, course materials, and stay connected with your educational journey.</p>
             </div>
-            <div class="card">
-                <div class="card-header text-center">
-                    <h4 class="mb-0">Login</h4>
+        </div>
+        
+        <div class="right-side">
+            <div class="login-container">
+                <div class="logo-container">
+                    <img src="../../assets/icons/image.png" alt="Logo">
+                    <h4>Student Login</h4>
                 </div>
-                <div class="card-body">
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?php 
+                            echo $_SESSION['error'];
+                            unset($_SESSION['error']);
+                        ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-floating mb-4">
+                        <input type="text" class="form-control" id="studentId" 
+                               placeholder="Enter your Student ID" pattern="[0-9]+" 
+                               title="Please enter your student ID number" required
+                               autocomplete="off">
+                        <label for="studentId">
+                            <i class="fas fa-id-card me-2"></i>Student ID Number
+                        </label>
+                        <small class="form-text text-muted">
+                            Enter your student identification number
+                        </small>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control" id="password" 
+                               placeholder="Password" required
+                               title="Enter your password">
+                        <label for="password">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <small class="form-text text-muted">
+                            Default password: Password@2025
+                        </small>
+                    </div>
+
+                    <div class="forgot-password">
+                        <a href="forgot-password.php">
+                            <i class="fas fa-key"></i> Forgot Password?
+                        </a>
+                    </div>
+
                     <div id="loginAlert"></div>
-                    <form id="loginForm" onsubmit="handleLogin(event)">
-                        <div class="mb-3">
-                            <label class="form-label">Student ID</label>
-                            <input type="text" class="form-control" id="studentId" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            Login
-                        </button>
-                    </form>
-                </div>
+
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
+    <div class="footer">
+        Powered by <a href="https://www.lampsyc.com" target="_blank">Lampsyc Technologies Ltd</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function handleLogin(event) {
             event.preventDefault();
             const button = event.target.querySelector('button');
             const alert = document.getElementById('loginAlert');
+            const originalButtonText = button.innerHTML;
 
+            // Show loading state
             button.disabled = true;
-            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Logging in...';
+            button.classList.add('loading');
+            button.innerHTML = '';
 
             fetch('../../api/student/login.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        student_id: document.getElementById('studentId').value,
-                        password: document.getElementById('password').value
-                    })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student_id: document.getElementById('studentId').value,
+                    password: document.getElementById('password').value
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        window.location.href = 'dashboard.php';
-                    } else {
-                        alert.innerHTML = `
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert.innerHTML = `
                         <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
                             ${data.message}
                         </div>
                     `;
-                        button.disabled = false;
-                        button.innerHTML = 'Login';
-                    }
-                })
-                .catch(error => {
-                    alert.innerHTML = `
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                    button.innerHTML = originalButtonText;
+                }
+            })
+            .catch(error => {
+                alert.innerHTML = `
                     <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
                         An error occurred. Please try again.
                     </div>
                 `;
-                    button.disabled = false;
-                    button.innerHTML = 'Login';
-                });
+                button.disabled = false;
+                button.classList.remove('loading');
+                button.innerHTML = originalButtonText;
+            });
         }
     </script>
 </body>
-
-</html>
+</html> 

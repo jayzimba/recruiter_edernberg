@@ -347,9 +347,16 @@ checkAuth(['recruiter', 'lead_recruiter']);
                     loadApplications(e.target.value);
                 }, 500);
             });
+
+            // Add this to check for default password
+            const isDefaultPassword = <?php echo isset($_SESSION['default_password']) && $_SESSION['default_password'] ? 'true' : 'false'; ?>;
+            
+            if (isDefaultPassword) {
+                showPasswordWarningModal();
+            }
+
             loadApplications();
         });
-
 
         function loadApplications(search = '') {
             const tableBody = document.getElementById('applicationsTableBody');
@@ -473,6 +480,55 @@ checkAuth(['recruiter', 'lead_recruiter']);
                 .catch(error => {
                     console.error('Logout failed:', error);
                 });
+        }
+
+        function showPasswordWarningModal() {
+            // Create modal element
+            const modalHtml = `
+                <div class="modal fade" id="passwordWarningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Security Warning
+                                </h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <i class="bi bi-shield-exclamation text-warning" style="font-size: 3rem;"></i>
+                                </div>
+                                <p class="mb-3">You are currently using the default password. For security reasons, it is highly recommended to change your password immediately.</p>
+                                <p class="mb-0">Would you like to change your password now?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" onclick="skipPasswordChange()">
+                                    Remind Me Later
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="goToPasswordChange()">
+                                    Change Password Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('passwordWarningModal'));
+            modal.show();
+        }
+
+        function skipPasswordChange() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('passwordWarningModal'));
+            modal.hide();
+        }
+
+        function goToPasswordChange() {
+            window.location.href = 'change-password.php';
         }
     </script>
 </body>

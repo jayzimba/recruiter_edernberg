@@ -1,0 +1,465 @@
+/* Main Layout */
+body {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding-top: 60px;
+}
+
+/* Navbar Styles */
+.navbar {
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    height: 60px;
+    padding: 0 1.5rem;
+    z-index: 1040;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-logo {
+    height: 40px;
+    width: auto;
+}
+
+.brand-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0056b3;
+}
+
+#sidebar-toggle {
+    color: #0056b3;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    margin-right: 1rem;
+}
+
+.user-dropdown {
+    background: none;
+    border: none;
+    color: #495057;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+.user-dropdown:hover, .user-dropdown:focus {
+    background: rgba(0,0,0,0.05);
+    color: #0056b3;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    background: #ffffff;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    z-index: 1030;
+    overflow-y: auto;
+}
+
+.user-info {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-image i {
+    font-size: 2.5rem;
+    color: #0056b3;
+}
+
+.user-details h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #495057;
+}
+
+.user-details small {
+    color: #6c757d;
+}
+
+.nav-item {
+    margin: 0.25rem 1rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #495057;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-link i {
+    width: 20px;
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.nav-link span {
+    flex: 1;
+    margin-right: 0.5rem;
+}
+
+.nav-link:hover {
+    background: rgba(0,86,179,0.1);
+    color: #0056b3;
+}
+
+.nav-link.active {
+    background: #0056b3;
+    color: #ffffff;
+}
+
+/* Add these styles for the LMS link */
+.nav-link .external-link {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-left: 5px;
+}
+
+.nav-link:hover .external-link {
+    opacity: 1;
+}
+
+/* Style for external links in sidebar */
+.nav-link[target="_blank"] {
+    color: #0056b3;
+    background: rgba(0, 86, 179, 0.05);
+}
+
+.nav-link[target="_blank"]:hover {
+    background: rgba(0, 86, 179, 0.1);
+    color: #004494;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 260px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+/* Page Title */
+.page-title {
+    margin-bottom: 2rem;
+}
+
+.page-title h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb {
+    margin: 0;
+    background: none;
+    padding: 0;
+}
+
+/* Stats Cards */
+.stats-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stats-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    background: rgba(0,86,179,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #0056b3;
+}
+
+.stats-info {
+    flex: 1;
+}
+
+.stats-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.stats-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+.card-header h5 {
+    margin: 0;
+    font-weight: 600;
+    color: #212529;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Responsive Sidebar */
+.sidebar-collapsed .sidebar {
+    transform: translateX(-260px);
+}
+
+.sidebar-collapsed .main-content {
+    margin-left: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-260px);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar-collapsed .sidebar {
+        transform: translateX(0);
+    }
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+}
+
+.dropdown-item:hover {
+    background: rgba(0,86,179,0.1);
+    color: #0056b3;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+}
+
+/* Level Info Card */
+.level-info-card {
+    background: linear-gradient(135deg, #0056b3, #007bff);
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,86,179,0.2);
+}
+
+.level-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 1rem;
+    text-align: center;
+}
+
+.divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.year-info, .semester-info {
+    flex: 1;
+}
+
+.label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Calendar Events */
+.calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.calendar-event {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.event-date {
+    padding: 0.5rem;
+    background: #0056b3;
+    color: white;
+    border-radius: 8px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.event-date .month {
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: block;
+}
+
+.event-date .day {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: block;
+}
+
+.event-details h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.event-details p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Activity Timeline */
+.activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    position: relative;
+}
+
+.timeline-icon {
+    background: rgba(0,86,179,0.1);
+    color: #0056b3;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timeline-content h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.timeline-content p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+}
+
+.timeline-content small {
+    color: #adb5bd;
+}
+
+/* Deadline List */
+.deadline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.deadline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.deadline-item:hover {
+    background: #e9ecef;
+}
+
+.deadline-info h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.deadline-info p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Table Styles */
+.table {
+    margin: 0;
+}
+
+.table th {
+    font-weight: 600;
+    background: #f8f9fa;
+    padding: 0.75rem 1.25rem;
+}
+
+.table td {
+    padding: 0.75rem 1.25rem;
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+} 

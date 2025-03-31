@@ -57,6 +57,38 @@ checkAuth(['lead_recruiter']);
             font-size: 0.9rem;
             padding: 0.5em 1em;
         }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .progress-steps div {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .progress-steps div:before {
+            content: "●";
+            position: absolute;
+            left: 0;
+            color: #dee2e6;
+        }
+        
+        .progress-steps div.text-primary:before,
+        .progress-steps div.text-success:before {
+            color: currentColor;
+        }
+        
+        .progress-bar-animated {
+            animation: progress-bar-stripes 1s linear infinite;
+        }
     </style>
 </head>
 
@@ -117,12 +149,24 @@ checkAuth(['lead_recruiter']);
                         const details = document.getElementById('applicationDetails');
                         const actionButtons = document.getElementById('actionButtons');
 
-                        // Only show Review Application button if status is not "Accepted" (status_id != 3)
+                        // Only show Review Application button if status is not "Accepted" (status_id != 3) else download application letter
                         actionButtons.innerHTML = app.status_id != 3 ? `
                             <button class="btn btn-primary me-2" onclick="showActionModal()">
                                 <i class="bi bi-check-circle"></i> Review Application
                             </button>
-                        ` : '';
+                        ` : (app.admission_letter_pdf ? `
+                            <a href="${getWebPath(app.admission_letter_pdf)}" class="btn btn-primary me-2" download>
+                                <i class="bi bi-download"></i> Download Application Letter
+                            </a>
+                        ` : `
+                            <button class="btn btn-primary me-2" disabled>
+                                <i class="bi bi-exclamation-triangle"></i> Application Letter Not Available
+                            </button>
+                        `);
+
+                        // Add this to help debug path conversion
+                        console.log('Original path:', app.admission_letter_pdf);
+                        console.log('Converted path:', getWebPath(app.admission_letter_pdf));
 
                         details.innerHTML = `
                         <!-- Status Section -->
@@ -131,7 +175,7 @@ checkAuth(['lead_recruiter']);
                             <h5 class="section-title mb-0">Application Status</h5>
                             <div class="d-flex justify-content-end align-items-center gap-3">
                                
-                                 ${app.pop && app.student_status =='Not Paid' ? `
+                                ${app.pop && app.student_status =='Not Paid' ? `
                                 <div class="d-flex justify-content-end">
                                     <button class="btn btn-sm btn-success" onclick="approvePOP(${app.id})">
                                         <i class="bi bi-check-circle"></i> Approve Payment
@@ -274,8 +318,10 @@ checkAuth(['lead_recruiter']);
                     return 'bg-warning';
                 case 'Rejected':
                     return 'bg-danger';
-                default:
+                case 'Accepted':
                     return 'bg-success';
+                default:
+                    return 'bg-secondary';
             }
         }
 
@@ -333,25 +379,116 @@ checkAuth(['lead_recruiter']);
             }
         }
 
+        function updateProgress(percentage, message) {
+            const progressDiv = document.getElementById('processingProgress');
+            const progressBar = progressDiv.querySelector('.progress-bar');
+            const percentageText = progressDiv.querySelector('.progress-percentage');
+            const steps = progressDiv.querySelectorAll('.progress-steps div');
+
+            progressDiv.classList.remove('d-none');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+            percentageText.textContent = `${percentage}%`;
+
+            // Update steps visibility based on progress
+            if (percentage <= 33) {
+                steps[0].classList.add('text-primary', 'fw-bold');
+                steps[1].classList.remove('text-primary', 'fw-bold');
+                steps[2].classList.remove('text-primary', 'fw-bold');
+            } else if (percentage <= 66) {
+                steps[0].classList.add('text-success');
+                steps[1].classList.add('text-primary', 'fw-bold');
+                steps[2].classList.remove('text-primary', 'fw-bold');
+            } else {
+                steps[0].classList.add('text-success');
+                steps[1].classList.add('text-success');
+                steps[2].classList.add('text-primary', 'fw-bold');
+            }
+        }
+
         function updateApplicationStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const applicationId = urlParams.get('id');
             const status = document.getElementById('applicationStatus').value;
             const feedback = document.getElementById('actionFeedback');
+            const progressDiv = document.getElementById('processingProgress');
 
             if (!status) {
                 feedback.innerHTML = `
-                <div class="alert alert-danger">
-                    Please select a decision
-                </div>
-            `;
+                    <div class="alert alert-danger">
+                        Please select a decision
+                    </div>
+                `;
                 return;
             }
 
             const button = event.target;
             setButtonLoading(button, true);
 
-            fetch('../../api/applications/update_status.php', {
+            // Reset and show progress if accepting application
+            if (status === '3') {
+                progressDiv.classList.remove('d-none');
+                updateProgress(0, 'Starting document preparation...');
+                
+                // Simulate progress steps
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 1;
+                    if (progress <= 100) {
+                        updateProgress(progress);
+                    }
+                }, 50);
+
+                fetch('../../api/applications/update_status.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        application_id: applicationId,
+                        status: status,
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(progressInterval);
+                    updateProgress(100);
+                    
+                    if (data.status) {
+                        feedback.innerHTML = `
+                            <div class="alert alert-success">
+                                ${data.message}
+                            </div>
+                        `;
+                        setTimeout(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
+                                .hide();
+                            loadApplicationDetails(applicationId);
+                        }, 1500);
+                    } else {
+                        feedback.innerHTML = `
+                            <div class="alert alert-danger">
+                                ${data.message}
+                            </div>
+                        `;
+                        progressDiv.classList.add('d-none');
+                    }
+                    setButtonLoading(button, false);
+                })
+                .catch(error => {
+                    clearInterval(progressInterval);
+                    console.error('Error:', error);
+                    feedback.innerHTML = `
+                        <div class="alert alert-danger">
+                            An error occurred. Please try again.
+                        </div>
+                    `;
+                    progressDiv.classList.add('d-none');
+                    setButtonLoading(button, false);
+                });
+            } else {
+                // For non-acceptance statuses, proceed without progress bar
+                fetch('../../api/applications/update_status.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -365,10 +502,10 @@ checkAuth(['lead_recruiter']);
                 .then(data => {
                     if (data.status) {
                         feedback.innerHTML = `
-                    <div class="alert alert-success">
-                        ${data.message}
-                    </div>
-                `;
+                            <div class="alert alert-success">
+                                ${data.message}
+                            </div>
+                        `;
                         setTimeout(() => {
                             bootstrap.Modal.getInstance(document.getElementById('applicationActionModal'))
                                 .hide();
@@ -376,22 +513,23 @@ checkAuth(['lead_recruiter']);
                         }, 1500);
                     } else {
                         feedback.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${data.message}
-                    </div>
-                `;
+                            <div class="alert alert-danger">
+                                ${data.message}
+                            </div>
+                        `;
                     }
                     setButtonLoading(button, false);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     feedback.innerHTML = `
-                <div class="alert alert-danger">
-                    An error occurred. Please try again.
-                </div>
-            `;
+                        <div class="alert alert-danger">
+                            An error occurred. Please try again.
+                        </div>
+                    `;
                     setButtonLoading(button, false);
                 });
+            }
         }
 
         // Add this function to handle POP approval
@@ -421,6 +559,22 @@ checkAuth(['lead_recruiter']);
                     alert('An error occurred while approving payment');
                 });
         }
+
+        // Function to convert server path to web path
+        function getWebPath(serverPath) {
+            // Return empty string if serverPath is null or undefined
+            if (!serverPath) {
+                return '';
+            }
+            
+            // Split the path by 'uploads' and take the part after it
+            const parts = serverPath.split('uploads');
+            if (parts.length > 1) {
+                // Return web-accessible path
+                return '/uploads' + parts[1].replace(/\\/g, '/');
+            }
+            return serverPath; // Return original if no 'uploads' found
+        }
     </script>
 
     <!-- Application Action Modal -->
@@ -441,7 +595,26 @@ checkAuth(['lead_recruiter']);
                                 <option value="4">Reject Application</option>
                             </select>
                         </div>
-
+                        <div id="processingProgress" class="mt-3 d-none">
+                            <div class="progress-info mb-2">
+                                <span class="progress-label">Preparing Documents</span>
+                                <span class="progress-percentage">0%</span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" 
+                                     style="width: 0%" 
+                                     aria-valuenow="0" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <div class="progress-steps small text-muted mt-2">
+                                <div>Generating DOCX...</div>
+                                <div>Converting to PDF...</div>
+                                <div>Finalizing...</div>
+                            </div>
+                        </div>
                     </form>
                     <div id="actionFeedback"></div>
                 </div>

@@ -205,7 +205,7 @@ if (isset($_SESSION['user_id'])) {
                             <span class="input-group-text bg-light border-end-0">
                                 <i class="bi bi-envelope"></i>
                             </span>
-                            <input type="email" class="form-control border-start-0" id="email" name="email" required>
+                            <input type="email" class="form-control border-start-0" id="email" name="email" placeholder="Enter your email address" required>
                         </div>
                     </div>
 
@@ -215,7 +215,7 @@ if (isset($_SESSION['user_id'])) {
                             <span class="input-group-text bg-light border-end-0">
                                 <i class="bi bi-lock"></i>
                             </span>
-                            <input type="password" class="form-control border-start-0" id="password" name="password" required>
+                            <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Enter your password" required>
                         </div>
                     </div>
 

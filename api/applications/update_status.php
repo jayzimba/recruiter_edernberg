@@ -60,7 +60,7 @@ try {
 
         // Get application details
         $query = "SELECT 
-             s.firstname,
+            s.firstname,
             s.lastname,
             s.middlename,
             s.email,
@@ -89,6 +89,7 @@ try {
         LEFT JOIN levels l ON p.level_id = l.id
 
         WHERE s.id = :id";
+
 
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':id', $data['application_id']);

@@ -307,13 +307,13 @@ checkAuth(['recruiter']);
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Program</label>
-                            <select class="form-select" id="program" name="program">
+                            <select class="form-select  form-control" id="program" name="program">
                                 <option value="">All Programs</option>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Contact Status</label>
-                            <select class="form-select" id="contactStatus" name="contactStatus">
+                            <select class="form-select form-control" id="contactStatus" name="contactStatus">
                                 <option value="">All Status</option>
                                 <option value="1">Contacted</option>
                                 <option value="0">Not Contacted</option>

@@ -23,6 +23,7 @@ try {
         throw new Exception('Invalid application ID');
     }
 
+    
     // Get application details
     $query = "SELECT s.*, p.program_name, sm.mode_name, 
               i.intake_description, at.admission_description,

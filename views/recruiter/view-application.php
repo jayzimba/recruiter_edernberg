@@ -266,11 +266,14 @@ checkAuth(['recruiter']);
         loadApplicationDetails(applicationId);
     });
 
+    let currentApplicationData = null;
+
     function loadApplicationDetails(id) {
         fetch(`../../api/applications/get_application.php?id=${id}`)
             .then(response => response.json())
             .then(data => {
                 if (data.status && data.data) {
+                    currentApplicationData = data.data;
                     const app = data.data;
                     const details = document.getElementById('applicationDetails');
 
@@ -302,12 +305,17 @@ checkAuth(['recruiter']);
 
                         <!-- Personal Information -->
                         <div class="detail-card">
-                            <h5 class="section-title">Personal Information</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="section-title mb-0">Personal Information</h5>
+                                <button class="btn btn-outline-primary btn-sm" onclick="showEditModal()">
+                                    <i class="bi bi-pencil"></i> Edit Information
+                                </button>
+                            </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="detail-row">
                                         <div class="detail-label">Full Name</div>
-                                        <div>${app.firstname} ${app.lastname}</div>
+                                        <div>${app.firstname} ${app.middlename || ''} ${app.lastname}</div>
                                     </div>
                                     <div class="detail-row">
                                         <div class="detail-label">Email</div>
@@ -536,6 +544,83 @@ checkAuth(['recruiter']);
                 setButtonLoading(button, false);
             });
     }
+
+    function showEditModal() {
+        const app = currentApplicationData;
+        if (!app) return;
+
+        document.getElementById('editFirstname').value = app.firstname || '';
+        document.getElementById('editMiddlename').value = app.middlename || '';
+        document.getElementById('editLastname').value = app.lastname || '';
+        document.getElementById('editEmail').value = app.email || '';
+        document.getElementById('editContact').value = app.contact || '';
+        document.getElementById('editGID').value = app.G_ID || '';
+        document.getElementById('editNationality').value = app.nationality || '';
+
+        const modal = new bootstrap.Modal(document.getElementById('editInformationModal'));
+        modal.show();
+    }
+
+    function saveChanges() {
+        const form = document.getElementById('editInformationForm');
+        const formData = new FormData(form);
+        const button = document.getElementById('saveChangesBtn');
+        const feedback = document.getElementById('editFeedback');
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+
+        formData.append('application_id', applicationId);
+
+        button.disabled = true;
+        button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Saving...`;
+        feedback.innerHTML = '';
+
+        const jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        });
+
+        fetch('../../api/applications/update_information.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status) {
+                feedback.innerHTML = `
+                    <div class="alert alert-success">
+                        ${data.message}
+                    </div>
+                `;
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('editInformationModal')).hide();
+                    loadApplicationDetails(applicationId);
+                    window.location.reload();
+                }, 1500);
+            } else {
+                feedback.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${data.message}
+                    </div>
+                `;
+                button.disabled = false;
+                button.innerHTML = 'Save Changes';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            feedback.innerHTML = `
+                <div class="alert alert-danger">
+                    An error occurred while saving changes. Please try again.
+                </div>
+            `;
+            button.disabled = false;
+            button.innerHTML = 'Save Changes';
+        });
+    }
     </script>
 
     <!-- Add this modal HTML just before the closing body tag -->
@@ -561,6 +646,58 @@ checkAuth(['recruiter']);
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="uploadPopBtn" onclick="uploadPOP()">
                         Upload
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal before the closing body tag -->
+    <div class="modal fade" id="editInformationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Personal Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editInformationForm">
+                        <div class="mb-3">
+                            <label class="form-label required">First Name</label>
+                            <input type="text" class="form-control" id="editFirstname" name="firstname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="editMiddlename" name="middlename">
+                            <small class="text-muted">Optional</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Last Name</label>
+                            <input type="text" class="form-control" id="editLastname" name="lastname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Contact</label>
+                            <input type="text" class="form-control" id="editContact" name="contact" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">National ID/Passport</label>
+                            <input type="text" class="form-control" id="editGID" name="G_ID" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Nationality</label>
+                            <input type="text" class="form-control" id="editNationality" name="nationality" required>
+                        </div>
+                        <div id="editFeedback"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesBtn" onclick="saveChanges()">
+                        Save Changes
                     </button>
                 </div>
             </div>

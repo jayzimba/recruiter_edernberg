@@ -133,13 +133,19 @@ class Mailer
                     
                     <p>If you have any questions, please contact your recruiting officer on: {$data['recruiter_phone_number']}</p>
                     
+                    
+                    <div style='margin-top: 20px; padding: 20px; background-color: #f5f5f5;'>
+                        <p style='margin: 0;'><strong>Contact Information:</strong></p>
+                        <p style='margin: 5px 0;'>Email: admissions.edenberguniversity@ue.ac.zm</p>
+                    </div>
+                    
                     <p style='margin-top: 20px;'>Best regards,<br>
-                    University of Edenberg Admissions Team</p>
+                    University Recruitment Team</p>
                 </div>
             ";
             
             $this->mail->Body = $body;
-            $this->mail->addAttachment($attachmentPath, 'Admission_Letter.pdf');
+            $this->mail->addAttachment($attachmentPath, $data['student_name'] . '_Admission_Letter.pdf');
             
             return $this->mail->send();
         } catch (Exception $e) {
@@ -186,5 +192,39 @@ class Mailer
             error_log("Failed to send welcome email: " . $this->mail->ErrorInfo);
             return false;
         }
+    }
+
+    public function sendLeadConfirmation($to, $data)
+    {
+        $subject = "Thank You for Your Interest";
+        $message = "
+            <h2>Thank you for your interest in {$data['program']}</h2>
+            <p>Dear {$data['name']},</p>
+            <p>Thank you for your interest in studying {$data['program']} under the school of {$data['school']}. 
+               One of our recruiters will contact you shortly to discuss your application.</p>
+            <p>Program of Interest: {$data['program']}</p>
+            <p>If you have any questions in the meantime, please don't hesitate to contact us.</p>
+        ";
+        
+        return $this->sendEmail($to, $subject, $message);
+    }
+
+    public function sendLeadNotification($to, $data)
+    {
+        $subject = "New Lead Notification";
+        $message = "
+            <h2>New Lead Alert</h2>
+            <p>A new lead has been captured from Facebook:</p>
+            <ul>
+                <li>Name: {$data['lead_name']}</li>
+                <li>Email: {$data['lead_email']}</li>
+                <li>Phone: {$data['lead_phone']}</li>
+                <li>Program: {$data['program']}</li>
+                <li>School: {$data['school']}</li>
+            </ul>
+            <p>Please follow up with this lead as soon as possible.</p>
+        ";
+        
+        return $this->sendEmail($to, $subject, $message);
     }
 }
