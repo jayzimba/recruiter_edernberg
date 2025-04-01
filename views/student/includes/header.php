@@ -7,8 +7,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="../../assets/css/student-dashboard.css" rel="stylesheet">
+    <?php 
+    $current_page = basename($_SERVER['PHP_SELF'], '.php');
+    if ($current_page === 'exams'): ?>
+    <link href="../../assets/css/exams.css" rel="stylesheet">
+    <?php endif; ?>
+    <?php if ($current_page == 'accommodation'): ?>
+    <link href="../../assets/css/accommodation.css" rel="stylesheet">
+    <?php endif; ?>
+    <?php if ($current_page === 'fees'): ?>
+    <link href="../../assets/css/fees.css" rel="stylesheet">
+    <?php endif; ?>
     <link rel="icon" type="image/png" href="../../assets/icons/edernberg.png">
 </head>
+
 <body>
     <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg fixed-top">

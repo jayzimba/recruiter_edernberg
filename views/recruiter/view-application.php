@@ -286,7 +286,7 @@ checkAuth(['recruiter']);
                                     <span class="badge status-badge ${getStatusBadgeClass(app.status_name)}">
                                         ${app.status_name}
                                     </span>
-                                    ${app.status_id == 1 ? `
+                                    ${app.status_id == 1 || app.status_id == 3 ? `
                                         <button class="btn btn-primary btn-sm" onclick="showPopUpload()">
                                             <i class="bi bi-upload"></i> Upload POP
                                         </button>

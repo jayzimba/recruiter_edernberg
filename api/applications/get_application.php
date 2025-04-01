@@ -24,8 +24,10 @@ try {
     }
 
     // Get application details
-    $query = "SELECT s.*, p.program_name, sm.mode_name, 
-              i.intake_description, at.admission_description,
+    $query = "SELECT s.*, 
+              p.program_name, sm.mode_name, 
+              i.intake_description, 
+              at.admission_description,
               status.name as status_name,
               CAST(status.id AS UNSIGNED) as status_id
               FROM students s

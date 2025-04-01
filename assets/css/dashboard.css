@@ -1,1 +1,27 @@
- 
+.level-info-card {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.95), rgba(0, 123, 255, 0.95)), url('../../assets/icons/image.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.level-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.95), rgba(0, 123, 255, 0.95));
+    z-index: 1;
+}
+
+.level-info-card .current-level {
+    position: relative;
+    z-index: 2;
+} 

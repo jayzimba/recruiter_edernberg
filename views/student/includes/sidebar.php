@@ -40,15 +40,15 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link <?php echo ($page == 'assignments') ? 'active' : ''; ?>" href="assignments.php">
+            <a class="nav-link <?php echo ($page == 'accommodation') ? 'active' : ''; ?>" href="accommodation.php">
                 <i class="fas fa-bed"></i>
                 <span>Accomodation</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link <?php echo ($page == 'results') ? 'active' : ''; ?>" href="results.php">
+            <a class="nav-link <?php echo ($page == 'transcripts') ? 'active' : ''; ?>" href="transcripts.php">
                 <i class="fas fa-chart-bar"></i>
-                <span>Results</span>
+                <span>Transcripts</span>
             </a>
         </li>
        

@@ -57,7 +57,7 @@
                             <i class="fas fa-lock me-2"></i>Password
                         </label>
                         <small class="form-text text-muted">
-                            Default password: Password@2025
+                            Be sure to change your default password after login.
                         </small>
                     </div>
 
@@ -78,7 +78,7 @@
     </div>
 
     <div class="footer">
-        Powered by <a href="https://www.lampsyc.com" target="_blank">Lampsyc Technologies Ltd</a>
+        Powered by <a href="https://www.lampsyc.com" target="_blank">Lampsync Technologies Ltd</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
