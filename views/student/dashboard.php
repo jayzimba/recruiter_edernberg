@@ -16,24 +16,26 @@ $page = 'dashboard';
     <div class="container-fluid">
         <!-- Internal CSS for Level Info Card -->
         <style>
+            /* Desktop/Web View Styles */
             .level-info-card {
                 background: linear-gradient(135deg, rgba(13, 110, 253, 0.85), rgba(0, 123, 255, 0.85)), url('../../assets/icons/bg.png');
                 background-size: cover;
-                background-position: center 60%;
-                background-repeat: no-repeat;
+                background-position: center;
                 border-radius: 12px;
                 padding: 1.5rem;
                 color: #fff;
                 box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
-                position: relative;
-                overflow: hidden;
             }
 
             .level-details {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 2rem;
+                text-align: center;
+            }
+
+            .year-info, .semester-info {
+                flex: 1;
             }
 
             .divider {
@@ -42,25 +44,73 @@ $page = 'dashboard';
                 background: rgba(255, 255, 255, 0.2);
             }
 
-            .year-info, .semester-info {
-                flex: 1;
-                text-align: center;
-            }
-
             .label {
-                font-size: 0.85rem;
-                opacity: 0.8;
                 display: block;
-                margin-bottom: 0.5rem;
+                font-size: 0.8rem;
+                opacity: 0.9;
+                margin-bottom: 0.25rem;
             }
 
             .value {
-                font-size: 1.25rem;
+                font-size: 1.1rem;
                 font-weight: 600;
+            }
+
+            .level-info-mobile {
+                display: none; /* Hide mobile version by default */
+            }
+
+            /* Mobile View Styles */
+            @media (max-width: 768px) {
+                .level-info-card {
+                    display: none; /* Hide desktop version */
+                }
+
+                .level-info-mobile {
+                    display: block; /* Show mobile version */
+                    margin: 0 -1rem;
+                    padding: 0 1rem;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                }
+
+                .level-details-mobile {
+                    display: flex;
+                    padding: 0.5rem 0;
+                    gap: 1rem;
+                    min-width: min-content;
+                }
+
+                .info-card {
+                    background: linear-gradient(135deg, rgba(13, 110, 253, 0.85), rgba(0, 123, 255, 0.85));
+                    padding: 0.875rem 1.25rem;
+                    border-radius: 12px;
+                    min-width: 130px;
+                    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+                    color: #fff;
+                    transition: transform 0.2s ease;
+                    cursor: pointer;
+                }
+
+                .info-card:active {
+                    transform: scale(0.98);
+                }
+
+                .info-card .label {
+                    font-size: 0.7rem;
+                    white-space: nowrap;
+                }
+
+                .info-card .value {
+                    font-size: 1rem;
+                    white-space: nowrap;
+                }
             }
         </style>
 
-        <!-- Level Info Card -->
+        <!-- Desktop Level Info Card -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="level-info-card">
@@ -76,6 +126,24 @@ $page = 'dashboard';
                         </div>
                         <div class="divider"></div>
                         <div class="semester-info">
+                            <span class="label">Current Semester</span>
+                            <span class="value">2nd Semester</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Level Info Cards -->
+                <div class="level-info-mobile">
+                    <div class="level-details-mobile">
+                        <div class="info-card">
+                            <span class="label">Academic Year</span>
+                            <span class="value">2023/2024</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="label">Year of Study</span>
+                            <span class="value">2nd Year</span>
+                        </div>
+                        <div class="info-card">
                             <span class="label">Current Semester</span>
                             <span class="value">2nd Semester</span>
                         </div>
