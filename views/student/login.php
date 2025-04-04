@@ -25,12 +25,9 @@
                     <h4>Student Login</h4>
                 </div>
 
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?php 
-                            echo $_SESSION['error'];
-                            unset($_SESSION['error']);
-                        ?>
+                <?php if (isset($_GET['session_expired'])): ?>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-clock me-2"></i>Your session has expired. Please login again.
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
@@ -38,11 +35,13 @@
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-floating mb-4">
                         <input type="text" class="form-control" id="studentId" 
-                               placeholder="Enter your Student ID" pattern="[0-9]+" 
-                               title="Please enter your student ID number" required
+                               placeholder="Enter your Student ID" 
+                               pattern="[A-Za-z0-9]+"
+                               title="Please enter your student ID (letters and numbers only)" 
+                               required
                                autocomplete="off">
                         <label for="studentId">
-                            <i class="fas fa-id-card me-2"></i>Student ID Number
+                            <i class="fas fa-id-card me-2"></i>Student ID
                         </label>
                         <small class="form-text text-muted">
                             Enter your student identification number
@@ -69,7 +68,7 @@
 
                     <div id="loginAlert"></div>
 
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
                         <i class="fas fa-sign-in-alt me-2"></i>Sign In
                     </button>
                 </form>
@@ -85,42 +84,47 @@
     <script>
         function handleLogin(event) {
             event.preventDefault();
-            const button = event.target.querySelector('button');
+            const button = document.getElementById('submitBtn');
             const alert = document.getElementById('loginAlert');
             const originalButtonText = button.innerHTML;
 
             // Show loading state
             button.disabled = true;
-            button.classList.add('loading');
-            button.innerHTML = '';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing in...';
 
-            fetch('../../api/student/login.php', {
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('student_id', document.getElementById('studentId').value);
+            formData.append('password', document.getElementById('password').value);
+
+            fetch('backend/api/auth.php?action=login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    student_id: document.getElementById('studentId').value,
-                    password: document.getElementById('password').value
-                })
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                if (data.status) {
-                    window.location.href = 'dashboard.php';
+                if (data.success) {
+                    // Use the redirect URL from the response if available
+                    const redirectUrl = data.redirect || 'dashboard.php';
+                    window.location.href = redirectUrl;
                 } else {
                     alert.innerHTML = `
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            ${data.message}
+                            ${data.error || 'Invalid credentials'}
                         </div>
                     `;
                     button.disabled = false;
-                    button.classList.remove('loading');
                     button.innerHTML = originalButtonText;
                 }
             })
             .catch(error => {
+                console.error('Login error:', error);
                 alert.innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
@@ -128,7 +132,6 @@
                     </div>
                 `;
                 button.disabled = false;
-                button.classList.remove('loading');
                 button.innerHTML = originalButtonText;
             });
         }

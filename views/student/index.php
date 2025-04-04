@@ -26,11 +26,13 @@ if (!in_array($page, $allowed_pages)) {
 
 // Check if user is logged in
 if (!isset($_SESSION['student_id'])) {
-    // Store the requested page for redirect after login
-    $_SESSION['redirect_url'] = "index.php?page=" . $page;
     header("Location: login.php");
     exit();
 }
+
+// If logged in, redirect to dashboard
+header("Location: dashboard.php");
+exit();
 
 // Include the requested page
 $page_file = $page . '.php';
