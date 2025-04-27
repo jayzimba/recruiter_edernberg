@@ -88,4 +88,17 @@ CREATE TABLE students (
     FOREIGN KEY (recruiter_id) REFERENCES users(id)
 );
 
+-- Subscriptions table
+CREATE TABLE subscriptions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    recruiter_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status ENUM('active', 'expired', 'pending') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (recruiter_id) REFERENCES users(id)
+);
+
+
 

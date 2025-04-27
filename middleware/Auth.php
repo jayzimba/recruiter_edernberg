@@ -12,13 +12,16 @@ class Auth
         $database = new Database();
         $this->conn = $database->getConnection();
     }
+    
 
     public function login($email, $password)
     {
         try {
-            $query = "SELECT u.*, ur.name as role_name 
+            $query = "SELECT u.*, ur.name as role_name, 
+                     s.status as subscription_status, s.end_date as subscription_end_date
                      FROM " . $this->table . " u 
                      LEFT JOIN user_roles ur ON u.role_id = ur.id 
+                     LEFT JOIN subscriptions s ON u.id = s.recruiter_id 
                      WHERE u.email = :email LIMIT 1";
 
             $stmt = $this->conn->prepare($query);
@@ -39,20 +42,32 @@ class Auth
 
             // Compare the hashed passwords directly
             if ($hashed_password === $row['password']) {
-
-
                 if ($row['status'] !== 1) {
                     return [
                         'status' => false,
                         'message' => 'User account is inactive'
                     ];
                 }
+
+                // Check subscription status for recruiters
+                if (in_array($row['role_name'], ['lead_recruiter', 'recruiter'])) {
+                    $subscriptionStatus = $this->checkSubscriptionStatus($row);
+                    if (!$subscriptionStatus['isValid']) {
+                        return [
+                            'status' => false,
+                            'message' => $subscriptionStatus['message']
+                        ];
+                    }
+                }
+
                 $_SESSION['default_password'] = $password === 'Password@2025';
 
                 // Create session
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['user_role'] = $row['role_name'];
                 $_SESSION['user_email'] = $row['email'];
+                $_SESSION['subscription_status'] = $row['subscription_status'];
+                $_SESSION['subscription_end_date'] = $row['subscription_end_date'];
 
                 // Create JWT token
                 $token = $this->generateJWT($row);
@@ -66,20 +81,16 @@ class Auth
                         'email' => $row['email'],
                         'role' => $row['role_name'],
                         'firstname' => $row['firstname'],
-                        'lastname' => $row['lastname']
+                        'lastname' => $row['lastname'],
+                        'subscription_status' => $row['subscription_status'],
+                        'subscription_end_date' => $row['subscription_end_date']
                     ]
                 ];
             }
 
             return [
                 'status' => false,
-                'message' => 'Invalid credentials',
-                'debug' => [
-                    'provided_email' => $email,
-                    'stored_hash' => $row['password'],
-                    'provided_hash' => $hashed_password,
-                    'role_name' => $row['role_name']
-                ]
+                'message' => 'Invalid credentials'
             ];
         } catch (PDOException $e) {
             return [
@@ -87,6 +98,44 @@ class Auth
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    private function checkSubscriptionStatus($user) {
+        // If no subscription record exists
+        if (empty($user['subscription_status'])) {
+            return [
+                'isValid' => false,
+                'message' => 'No active subscription found. Please contact support.'
+            ];
+        }
+
+        // If subscription is expired
+        if ($user['subscription_status'] === 'expired') {
+            return [
+                'isValid' => false,
+                'message' => 'Your subscription has expired. Please renew to continue.'
+            ];
+        }
+
+        // Check if subscription is ending in the last week of the month
+        $endDate = new DateTime($user['subscription_end_date']);
+        $today = new DateTime();
+        $lastDayOfMonth = new DateTime($endDate->format('Y-m-t')); // Get last day of current month
+        $daysUntilEnd = $today->diff($endDate)->days;
+        $daysUntilMonthEnd = $today->diff($lastDayOfMonth)->days;
+
+        if ($daysUntilMonthEnd <= 7 && $daysUntilEnd <= 7) {
+            return [
+                'isValid' => true,
+                'message' => 'Your subscription is ending soon. Please renew to avoid service interruption.',
+                'warning' => true
+            ];
+        }
+
+        return [
+            'isValid' => true,
+            'message' => 'Subscription is active'
+        ];
     }
 
     public function changePassword($userId, $currentPassword, $newPassword)

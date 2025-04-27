@@ -173,6 +173,7 @@ checkAuth(['recruiter', 'lead_recruiter']);
 
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 main-content">
+               
                 <!-- Header -->
                 <div class="header mb-4 d-flex justify-content-between align-items-center">
                     <button class="sidebar-toggle d-md-none" id="sidebarToggle">
@@ -192,8 +193,12 @@ checkAuth(['recruiter', 'lead_recruiter']);
                     </div>
                 </div>
 
+                 <!-- Include Subscription Banner -->
+                 <?php include '../../views/includes/subscription_banner.php'; ?>
+                
+
                 <!-- Stats Cards -->
-                <div class="row mb-4">
+                <div class="row my-4">
                     <div class="col-md-3">
                         <div class="card stat-card">
                             <div class="card-body">

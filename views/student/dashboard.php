@@ -11,10 +11,21 @@ $student = new Student();
 $dashboard_data = $student->getDashboardData($_SESSION['student_id']);
 $currentSemesterCourses = $student->getCurrentSemesterCourses($_SESSION['student_id']);
 $academicCalendar = $student->getAcademicCalendar($_SESSION['student_id']);
+$profileData = $student->getProfileData($_SESSION['student_id']);
+
+// Debug logging
+error_log("Student ID: " . $_SESSION['student_id']);
+error_log("Profile Data: " . print_r($profileData, true));
 
 if (!$dashboard_data) {
     // Handle error - maybe redirect to error page or show error message
     $error_message = "Unable to load dashboard data. Please try again later.";
+}
+
+if (!$profileData) {
+    // Handle error for profile data
+    $error_message = isset($error_message) ? $error_message . " Profile data could not be loaded." : "Profile data could not be loaded.";
+    error_log("Failed to load profile data for student: " . $_SESSION['student_id']);
 }
 
 $page = 'dashboard';
@@ -129,9 +140,9 @@ $page = 'dashboard';
             </style>
 
             <!-- Desktop Level Info Card -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="level-info-card">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="level-info-card">
                         <div class="level-details">
                             <div class="year-info">
                                 <span class="label">Academic Year</span>
@@ -164,54 +175,54 @@ $page = 'dashboard';
                             <div class="info-card">
                                 <span class="label">Current Semester</span>
                                 <span class="value"><?php echo $dashboard_data['academic_info']['current_semester'] ?? 'N/A'; ?></span>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Quick Stats -->
-            <div class="row mb-4">
-                <div class="col-sm-6 col-xl-3 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div class="stats-info">
-                            <p>Registered Programs</p>
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+        <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="stats-info">
+                        <p>Registered Programs</p>
                             <h3><?php echo $dashboard_data['programs_count']; ?></h3>
-                        </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-3 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <div class="stats-info">
-                            <p>Registered Courses</p>
+            </div>
+            <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stats-info">
+                        <p>Registered Courses</p>
                             <h3><?php echo $dashboard_data['courses_count']; ?></h3>
-                        </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-3 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-calendar"></i>
-                        </div>
-                        <div class="stats-info">
-                            <p>Upcoming Exams</p>
+            </div>
+            <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stats-info">
+                        <p>Upcoming Exams</p>
                             <h3><?php echo $dashboard_data['upcoming_exams']; ?></h3>
-                        </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-xl-3 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-money-bill"></i>
-                        </div>
-                        <div class="stats-info">
-                            <p>Fee Balance</p>
+            </div>
+            <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="fas fa-money-bill"></i>
+                    </div>
+                    <div class="stats-info">
+                        <p>Fee Balance</p>
                             <h3>ZMW<?php echo number_format($dashboard_data['fee_balance'], 2); ?></h3>
                         </div>
                     </div>
@@ -219,7 +230,7 @@ $page = 'dashboard';
             </div>
 
 
-              <!-- Main Sections -->
+        <!-- Main Sections -->
         <div class="row">
             <!-- Quick Links -->
             <div class="col-lg-8 mb-4">
@@ -292,8 +303,8 @@ $page = 'dashboard';
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($academicCalendar as $event): ?>
-                                    <div class="calendar-event">
-                                        <div class="event-date">
+                            <div class="calendar-event">
+                                <div class="event-date">
                                             <span class="month"><?php echo date('M', strtotime($event['event_date'])); ?></span>
                                             <span class="day"><?php echo date('d', strtotime($event['event_date'])); ?></span>
                                         </div>
@@ -359,17 +370,9 @@ $page = 'dashboard';
                                                     <div class="course-info">
                                                         <p><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars($course['instructor_name']); ?></p>
                                                         <p><i class="fas fa-book-reader"></i> <?php echo $course['credits']; ?> Credits</p>
-                                                        <?php if ($course['is_enrolled']): ?>
-                                                            <p><i class="fas fa-chart-line"></i> Progress: <?php echo $course['progress_percentage']; ?>%</p>
-                                                        <?php endif; ?>
+                                                       
                                                     </div>
-                                                    <?php if ($course['is_enrolled']): ?>
-                                                        <div class="course-progress">
-                                                            <div class="progress">
-                                                                <div class="progress-bar" role="progressbar" style="width: <?php echo $course['progress_percentage']; ?>%"></div>
-                                                            </div>
-                                                        </div>
-                                                    <?php endif; ?>
+                                                   
                                                 </div>
                                                 <div class="course-footer">
                                                     <?php if ($course['is_enrolled']): ?>
@@ -1002,5 +1005,342 @@ document.addEventListener('DOMContentLoaded', function() {
     height: 2rem;
 }
 </style>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <button type="button" class="btn-close modal-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                
+                <div class="profile-modal-container">
+                    <div class="profile-modal-header">
+                        <div class="profile-modal-cover"></div>
+                        <div class="profile-modal-title">
+                            <div class="profile-image-container mb-3">
+                                <?php if (!empty($profileData['profile_image'])): ?>
+                                    <img src="<?php echo htmlspecialchars($profileData['profile_image']); ?>" alt="Profile Image" class="profile-image">
+                                <?php else: ?>
+                                    <div class="profile-image-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <h2 class="student-name mb-2"><?php echo htmlspecialchars($profileData['first_name'] . ' ' . $profileData['last_name']); ?></h2>
+                            <p class="student-id mb-2"><?php echo htmlspecialchars($profileData['student_id']); ?></p>
+                            <div class="student-badges mb-3">
+                                <span class="badge bg-primary">Student</span>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-modal-content">
+                        <!-- Academic Information -->
+                        <div class="profile-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                Academic Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Program</label>
+                                        <span><?php echo htmlspecialchars($profileData['program_name']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Department</label>
+                                        <span><?php echo htmlspecialchars($profileData['department_name']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Academic Year</label>
+                                        <span><?php echo htmlspecialchars($profileData['academic_year']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Year of Study</label>
+                                        <span><?php echo htmlspecialchars($profileData['current_year']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Current Semester</label>
+                                        <span><?php echo htmlspecialchars($profileData['current_semester']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Program Status</label>
+                                        <span class="<?php echo strtolower($profileData['program_status']) === 'active' ? 'text-success' : 'text-warning'; ?>">
+                                            <?php echo htmlspecialchars($profileData['program_status']); ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="info-card">
+                                        <label>Enrollment Date</label>
+                                        <span><?php echo htmlspecialchars($profileData['enrollment_date']); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="profile-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-user"></i>
+                                Personal Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Email</label>
+                                        <span><?php echo htmlspecialchars($profileData['email']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Phone</label>
+                                        <span><?php echo htmlspecialchars($profileData['phone']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Date of Birth</label>
+                                        <span><?php echo htmlspecialchars($profileData['date_of_birth']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Nationality</label>
+                                        <span><?php echo htmlspecialchars($profileData['nationality']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Gender</label>
+                                        <span><?php echo htmlspecialchars($profileData['gender']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Address</label>
+                                        <span><?php echo htmlspecialchars($profileData['address']); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Information -->
+                        <div class="profile-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-clock"></i>
+                                Registration Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Registration Date</label>
+                                        <span><?php echo htmlspecialchars($profileData['registration_date']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="info-card">
+                                        <label>Status</label>
+                                        <span class="text-success">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Profile Modal Styles */
+.profile-modal-container {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.profile-modal-header {
+    position: relative;
+    text-align: center;
+    padding-bottom: 2rem;
+}
+
+.profile-modal-cover {
+    height: 160px;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.85), rgba(0, 123, 255, 0.85)), url('../../assets/icons/bg.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.profile-modal-title {
+    margin-top: -75px;
+}
+
+.profile-image-container {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.profile-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0d6efd, #0043a8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+}
+
+.student-name {
+    font-size: 1.75rem;
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+}
+
+.student-id {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.profile-modal-content {
+    padding: 2rem;
+}
+
+.profile-section {
+    margin-bottom: 2rem;
+}
+
+.profile-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: #0d6efd;
+    font-size: 1.1rem;
+}
+
+.info-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.info-card label {
+    display: block;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-card span {
+    display: block;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.student-badges {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.student-badges .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    padding: 0.5rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 768px) {
+    .profile-modal-header {
+        padding-bottom: 1.5rem;
+    }
+    
+    .profile-image-container {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .student-name {
+        font-size: 1.5rem;
+    }
+    
+    .profile-modal-content {
+        padding: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+<!-- Add this button where you want to trigger the modal -->
+<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+    <i class="fas fa-user-circle me-2"></i>View Profile
+</button>
+
+<script>
+// Add this to your existing JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all modals
+    var modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+    });
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>

@@ -275,7 +275,22 @@ if (isset($_SESSION['user_id'])) {
             errorDiv.textContent = message;
             errorDiv.classList.remove('d-none');
         }
+
+        // Check for subscription warning
+        const urlParams = new URLSearchParams(window.location.search);
+        const subscriptionWarning = urlParams.get('subscription_warning');
+        if (subscriptionWarning) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'alert alert-warning alert-dismissible fade show';
+            warningDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                ${subscriptionWarning}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.login-form-container').insertBefore(warningDiv, document.querySelector('form'));
+        }
     </script>
 </body>
+
 
 </html>

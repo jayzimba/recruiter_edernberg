@@ -172,6 +172,22 @@ checkAuth(['lead_recruiter']);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // Load schools
+            fetch('https://uoe.lampsync.com/api/schools/get.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status && data.data) {
+                       console.log(data.data);
+                    } else {
+                        showFeedback('danger', 'Failed to load schools');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showFeedback('danger', 'Failed to load schools');
+                });
+
             loadDashboardData();
         });
 

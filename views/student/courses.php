@@ -5,9 +5,17 @@ if (!isset($_SESSION['student_id'])) {
     exit();
 }
 
+require_once 'backend/models/Student.php';
+
+$student = new Student();
+$currentSemesterCourses = $student->getCurrentSemesterCourses($_SESSION['student_id']);
+$academicInfo = $student->getAcademicInfo($_SESSION['student_id']);
+
+// Get current semester
+$currentSemester = isset($academicInfo['current_semester']) ? $academicInfo['current_semester'] : '2nd Semester';
+
 $page = 'courses';
 ?>
-
 
 <?php include 'includes/header.php'; ?>
 <?php include 'includes/sidebar.php'; ?>
@@ -20,7 +28,7 @@ $page = 'courses';
             <div class="col-12">
                 <div class="page-header">
                     <h2>Course Registration</h2>
-                    <p class="text-muted">View and manage your registered courses</p>
+                    <p class="text-muted">View and manage your registered courses for <?php echo htmlspecialchars($currentSemester); ?></p>
                 </div>
             </div>
         </div>
@@ -35,20 +43,19 @@ $page = 'courses';
                             <span class="value">Open</span>
                         </div>
                         <div class="status-item">
-                            <span class="label">Deadline</span>
-                            <span class="value">March 30, 2025</span>
+                            <span class="label">Semester</span>
+                            <span class="value"><?php echo htmlspecialchars($currentSemester); ?></span>
                         </div>
                         <div class="status-item">
-                            <span class="label">Semester</span>
-                            <span class="value">2nd Semester</span>
+                            <span class="label">Registered Courses</span>
+                            <span class="value"><?php echo count(array_filter($currentSemesterCourses, function($course) { 
+                                return isset($course['enrollment_status']) && $course['enrollment_status'] === 'active'; 
+                            })); ?></span>
                         </div>
                     </div>
                     <div class="status-actions">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrationModal">
                             <i class="fas fa-plus"></i> Add Course
-                        </button>
-                        <button class="btn btn-success">
-                            <i class="fas fa-check"></i> Submit Registration
                         </button>
                     </div>
                 </div>
@@ -68,49 +75,44 @@ $page = 'courses';
                     </div>
                     <div class="card-body">
                         <div class="course-list">
-                            <!-- Course Item -->
-                            <div class="course-item">
-                                <div class="course-info">
-                                    <div class="course-header">
-                                        <h6>CSC 201 - Data Structures</h6>
-                                        <span class="status-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                            Active
-                                        </span>
-                                    </div>
-                                    <p class="course-description">Study of fundamental data structures and algorithms, including arrays, linked lists, stacks, queues, trees, and graphs.</p>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-user-tie"></i> Dr. John Doe</span>
-                                    </div>
+                            <?php 
+                            $registeredCourses = array_filter($currentSemesterCourses, function($course) { 
+                                return isset($course['enrollment_status']) && $course['enrollment_status'] === 'active'; 
+                            });
+                            
+                            if (empty($registeredCourses)): 
+                            ?>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i> You haven't registered for any courses this semester.
                                 </div>
-                                <div class="course-actions">
-                                    <button class="btn btn-outline-danger btn-sm" onclick="dropCourse('CSC201')">
-                                        <i class="fas fa-times"></i> Drop Course
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Course Item -->
-                            <div class="course-item">
-                                <div class="course-info">
-                                    <div class="course-header">
-                                        <h6>CSC 203 - Database Systems</h6>
-                                        <span class="status-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                            Active
-                                        </span>
+                            <?php else: ?>
+                                <?php foreach ($registeredCourses as $course): ?>
+                                    <div class="course-item">
+                                        <div class="course-info">
+                                            <div class="course-header">
+                                                <h6><?php echo htmlspecialchars($course['course_code'] . ' - ' . $course['course_name']); ?></h6>
+                                                <span class="status-badge badge bg-success">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    Active
+                                                </span>
+                                            </div>
+                                            <p class="course-description"><?php echo htmlspecialchars($course['description'] ?? ''); ?></p>
+                                            <div class="course-meta">
+                                                <span><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars($course['instructor_name'] ?? 'TBA'); ?></span>
+                                                <span><i class="fas fa-clock"></i> <?php echo htmlspecialchars($course['credits']); ?> Credits</span>
+                                                <?php if (isset($course['registration_date'])): ?>
+                                                    <span><i class="fas fa-calendar"></i> Registered: <?php echo date('M d, Y', strtotime($course['registration_date'])); ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="course-actions">
+                                            <button class="btn btn-outline-danger btn-sm" onclick="dropCourse('<?php echo htmlspecialchars($course['course_code']); ?>')">
+                                                <i class="fas fa-times"></i> Drop Course
+                                            </button>
+                                        </div>
                                     </div>
-                                    <p class="course-description">Introduction to database design, SQL, and database management systems.</p>
-                                    <div class="course-meta">
-                                        <span><i class="fas fa-user-tie"></i> Dr. John Doe</span>
-                                    </div>
-                                </div>
-                                <div class="course-actions">
-                                    <button class="btn btn-outline-danger btn-sm" onclick="dropCourse('CSC203')">
-                                        <i class="fas fa-times"></i> Drop Course
-                                    </button>
-                                </div>
-                            </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -126,15 +128,29 @@ $page = 'courses';
                         <div class="summary-list">
                             <div class="summary-item">
                                 <span>Total Courses</span>
-                                <span>2</span>
+                                <span><?php echo count($registeredCourses); ?></span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Total Credits</span>
+                                <span><?php 
+                                    echo array_reduce($registeredCourses, function($sum, $course) {
+                                        return $sum + ($course['credits'] ?? 0);
+                                    }, 0);
+                                ?></span>
                             </div>
                             <div class="summary-item">
                                 <span>Registration Status</span>
-                                <span class="text-success">Complete</span>
+                                <span class="text-success">Active</span>
                             </div>
                             <div class="summary-item">
                                 <span>Last Updated</span>
-                                <span>March 15, 2025</span>
+                                <span><?php 
+                                    $lastRegistered = array_reduce($registeredCourses, function($latest, $course) {
+                                        return (!$latest || ($course['registration_date'] ?? '') > $latest) ? 
+                                            ($course['registration_date'] ?? '') : $latest;
+                                    }, '');
+                                    echo $lastRegistered ? date('M d, Y', strtotime($lastRegistered)) : 'N/A';
+                                ?></span>
                             </div>
                         </div>
                     </div>
@@ -164,45 +180,33 @@ $page = 'courses';
                     </div>
                     
                     <div class="course-grid">
-                        <!-- Course Card -->
-                        <div class="course-card">
-                            <div class="course-card-header">
-                                <h6>CSC 205</h6>
-                                <span class="badge bg-primary">Available</span>
-                            </div>
-                            <div class="course-card-body">
-                                <h5>Web Development</h5>
-                                <p>Learn modern web development techniques and frameworks</p>
-                                <div class="course-meta">
-                                    <span><i class="fas fa-user-tie"></i> Dr. Jane Smith</span>
+                        <?php 
+                        $availableCourses = array_filter($currentSemesterCourses, function($course) { 
+                            return !isset($course['enrollment_status']) || $course['enrollment_status'] !== 'active'; 
+                        });
+                        
+                        foreach ($availableCourses as $course): 
+                        ?>
+                            <div class="course-card">
+                                <div class="course-card-header">
+                                    <h6><?php echo htmlspecialchars($course['course_code']); ?></h6>
+                                    <span class="badge bg-primary">Available</span>
+                                </div>
+                                <div class="course-card-body">
+                                    <h5><?php echo htmlspecialchars($course['course_name']); ?></h5>
+                                    <p><?php echo htmlspecialchars($course['description'] ?? 'No description available'); ?></p>
+                                    <div class="course-meta">
+                                        <span><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars($course['instructor_name'] ?? 'TBA'); ?></span>
+                                        <span><i class="fas fa-clock"></i> <?php echo htmlspecialchars($course['credits']); ?> Credits</span>
+                                    </div>
+                                </div>
+                                <div class="course-card-footer">
+                                    <button class="btn btn-primary btn-sm w-100" onclick="selectCourse('<?php echo htmlspecialchars($course['course_code']); ?>')">
+                                        Select Course
+                                    </button>
                                 </div>
                             </div>
-                            <div class="course-card-footer">
-                                <button class="btn btn-primary btn-sm w-100" onclick="selectCourse('CSC205')">
-                                    Select Course
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Course Card -->
-                        <div class="course-card">
-                            <div class="course-card-header">
-                                <h6>CSC 207</h6>
-                                <span class="badge bg-primary">Available</span>
-                            </div>
-                            <div class="course-card-body">
-                                <h5>Mobile App Development</h5>
-                                <p>Develop mobile applications for iOS and Android</p>
-                                <div class="course-meta">
-                                    <span><i class="fas fa-user-tie"></i> Dr. Mike Johnson</span>
-                                </div>
-                            </div>
-                            <div class="course-card-footer">
-                                <button class="btn btn-primary btn-sm w-100" onclick="selectCourse('CSC207')">
-                                    Select Course
-                                </button>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -285,8 +289,8 @@ $page = 'courses';
 
 .course-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     margin-bottom: 0.5rem;
 }
 
@@ -480,41 +484,90 @@ $page = 'courses';
 </style>
 
 <script>
-function selectCourse(courseId) {
-    // Course selection logic here
-    console.log('Selected course:', courseId);
-    // Show success message
-    Swal.fire({
-        icon: 'success',
-        title: 'Course Added!',
-        text: 'The course has been added to your registration.',
-        timer: 2000,
-        showConfirmButton: false
-    });
+async function selectCourse(courseId) {
+    try {
+        const response = await fetch('backend/api/register_course.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'add',
+                course_code: courseId
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Course Added!',
+                text: data.message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            // Reload the page to show updated course list
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to add course. Please try again.'
+        });
+    }
 }
 
-function dropCourse(courseId) {
-    // Course drop logic here
-    console.log('Dropping course:', courseId);
-    // Show confirmation dialog
-    Swal.fire({
-        title: 'Drop Course?',
-        text: "Are you sure you want to drop this course?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, drop it!'
-    }).then((result) => {
+async function dropCourse(courseId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Drop Course?',
+            text: "Are you sure you want to drop this course?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, drop it!'
+        });
+
         if (result.isConfirmed) {
-            // Handle course drop
-            Swal.fire(
-                'Dropped!',
-                'The course has been dropped from your registration.',
-                'success'
-            );
+            const response = await fetch('backend/api/register_course.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'drop',
+                    course_code: courseId
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Course Dropped!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                // Reload the page to show updated course list
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                throw new Error(data.message);
+            }
         }
-    });
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to drop course. Please try again.'
+        });
+    }
 }
 
 // Course search functionality
